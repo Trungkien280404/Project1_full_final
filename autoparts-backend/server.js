@@ -688,7 +688,14 @@ app.post('/api/ml/diagnose', uploadMem.single('file'), async (req, res) => {
     // Thử dùng python3 trước (cho Linux/Render), sau đó mới thử python (Windows)
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
 
-    const pythonProcess = spawn(pythonCmd, ['detector.py', tempFilePath]);
+    // Truyền biến môi trường rõ ràng cho Python
+    const env = {
+      ...process.env,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      GOOGLE_API_KEY: process.env.GEMINI_API_KEY // Thêm backup key này vì thư viện Google thường tìm nó
+    };
+
+    const pythonProcess = spawn(pythonCmd, ['detector.py', tempFilePath], { env });
     let resultData = '';
     let errorData = '';
 
