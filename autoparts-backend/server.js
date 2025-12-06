@@ -125,10 +125,32 @@ const adminAuth = (req, res, next) => {
   next();
 };
 
-// Helper: Validate email format
+// Helper: Validate email format with strict rules
 const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Regex chặt chẽ hơn: TLD phải ít nhất 2 ký tự, không cho phép ký tự đặc biệt lạ
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(email);
+};
+
+// Helper: Kiểm tra typo trong email domain
+const checkEmailTypo = (email) => {
+  const commonDomains = {
+    'gmail.com': ['gmaul.com', 'gmial.com', 'gmeil.com', 'gmai.com', 'gmall.com'],
+    'yahoo.com': ['yaho.com', 'yahooo.com', 'yhoo.com'],
+    'outlook.com': ['outlok.com', 'outloo.com', 'outlookk.com'],
+    'hotmail.com': ['hotmial.com', 'hotmal.com', 'hotmaii.com'],
+  };
+
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (!domain) return null;
+
+  for (const [correct, typos] of Object.entries(commonDomains)) {
+    if (typos.includes(domain)) {
+      return `Email có vẻ sai. Bạn có muốn dùng @${correct} thay vì @${domain}?`;
+    }
+  }
+
+  return null;
 };
 
 // Helper: Validate password strength (min 6 chars, 1 uppercase, 1 special char)
@@ -146,6 +168,12 @@ app.post('/api/auth/register', async (req, res) => {
   // Validation: Email format
   if (!email || !isValidEmail(email)) {
     return res.status(400).json({ message: 'Email không đúng định dạng' });
+  }
+
+  // Kiểm tra typo trong domain
+  const typoWarning = checkEmailTypo(email);
+  if (typoWarning) {
+    return res.status(400).json({ message: typoWarning });
   }
 
   // Validation: Password strength

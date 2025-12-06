@@ -35,7 +35,30 @@ export default function AuthModal({ onClose, onLogin }) {
     const [showPassword, setShowPassword] = useState(false);
 
     // Client-side validation helpers
-    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isValidEmail = (email) => {
+        // Regex chặt chẽ hơn: TLD phải ít nhất 2 ký tự
+        return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    };
+
+    const checkEmailTypo = (email) => {
+        const commonDomains = {
+            'gmail.com': ['gmaul.com', 'gmial.com', 'gmeil.com', 'gmai.com', 'gmall.com'],
+            'yahoo.com': ['yaho.com', 'yahooo.com', 'yhoo.com'],
+            'outlook.com': ['outlok.com', 'outloo.com', 'outlookk.com'],
+            'hotmail.com': ['hotmial.com', 'hotmal.com', 'hotmaii.com'],
+        };
+
+        const domain = email.split('@')[1]?.toLowerCase();
+        if (!domain) return null;
+
+        for (const [correct, typos] of Object.entries(commonDomains)) {
+            if (typos.includes(domain)) {
+                return `Email có vẻ sai. Bạn có muốn dùng @${correct}?`;
+            }
+        }
+        return null;
+    };
+
     const isStrongPassword = (pwd) => {
         const hasUpperCase = /[A-Z]/.test(pwd);
         const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
@@ -84,6 +107,12 @@ export default function AuthModal({ onClose, onLogin }) {
         if (!email || !isValidEmail(email)) {
             return showToast('error', 'Email không đúng định dạng');
         }
+
+        const typoWarning = checkEmailTypo(email);
+        if (typoWarning) {
+            return showToast('warning', typoWarning);
+        }
+
         if (!password || password.length < 6) {
             return showToast('error', 'Mật khẩu phải có ít nhất 6 ký tự');
         }
