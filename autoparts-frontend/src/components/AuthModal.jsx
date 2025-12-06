@@ -59,21 +59,21 @@ export default function AuthModal({ onClose, onLogin }) {
             return showToast('error', 'Vui lòng nhập mật khẩu');
         }
 
-        try {
-            setLoading(true); clearToast();
-            const data = await Api.login(email, password);
-            if (data?.token) {
-                showToast('success', '✅ Đăng nhập thành công!');
-                setTimeout(() => {
-                    onLogin(data);
-                    onClose();
-                }, 800);
-            } else {
-                showToast('error', data?.message || 'Đăng nhập không thành công');
-            }
-        } catch {
-            showToast('error', 'Không thể kết nối đến server');
-        } finally { setLoading(false); }
+        setLoading(true);
+        clearToast();
+        const data = await Api.login(email, password);
+
+        if (data?.token) {
+            showToast('success', '✅ Đăng nhập thành công!');
+            setTimeout(() => {
+                onLogin(data);
+                onClose();
+            }, 800);
+        } else {
+            showToast('error', data?.message || 'Đăng nhập không thành công');
+        }
+
+        setLoading(false);
     }
 
     async function submitRegister() {
@@ -91,21 +91,21 @@ export default function AuthModal({ onClose, onLogin }) {
             return showToast('error', 'Mật khẩu phải có ít nhất 1 chữ IN HOA và 1 ký tự đặc biệt (!@#$%...)');
         }
 
-        try {
-            setLoading(true); clearToast();
-            const data = await Api.register(name, email, password);
-            if (data?.token) {
-                showToast('success', '🎉 Đăng ký thành công!');
-                setTimeout(() => {
-                    onLogin(data);
-                    onClose();
-                }, 800);
-            } else {
-                showToast('error', data?.message || 'Đăng ký không thành công');
-            }
-        } catch {
-            showToast('error', 'Không thể kết nối đến server');
-        } finally { setLoading(false); }
+        setLoading(true);
+        clearToast();
+        const data = await Api.register(name, email, password);
+
+        if (data?.token) {
+            showToast('success', '🎉 Đăng ký thành công!');
+            setTimeout(() => {
+                onLogin(data);
+                onClose();
+            }, 800);
+        } else {
+            showToast('error', data?.message || 'Đăng ký không thành công');
+        }
+
+        setLoading(false);
     }
 
     async function fpSendCode() {

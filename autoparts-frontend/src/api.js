@@ -43,8 +43,12 @@ async function jpost(path, body) {
     },
     body: JSON.stringify(body)
   });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
+
+  const data = await r.json();
+
+  // Nếu response không ok (4xx, 5xx), vẫn return data để component có thể đọc message
+  // Không throw error nữa
+  return data;
 }
 
 async function jput(path, body) {
