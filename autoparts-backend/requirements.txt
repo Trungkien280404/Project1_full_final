@@ -1,5 +1,5 @@
 
-ultralytics==8.2.0
+ultralytics
 google-generativeai
 opencv-python-headless
 python-dotenv
