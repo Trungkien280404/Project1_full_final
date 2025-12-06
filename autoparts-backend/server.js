@@ -59,13 +59,28 @@ if (!fsOriginal.existsSync(uploadDir)) {
 app.use('/uploads', express.static(uploadDir));
 
 // --- CẤU HÌNH PHỤC VỤ CÁC FOLDER ẢNH CÓ SẴN (NgoaiThat4Web, etc.) ---
-// Trên Render, các folder này nằm ở cấp cha (parent dir) so với folder backend
+// Debug: In ra cấu trúc thư mục để kiểm tra trên Render Logs
 const parentDir = path.join(process.cwd(), '..');
+console.log('--- DEBUG DIRECTORY STRUCTURE ---');
+console.log('Current CWD:', process.cwd());
+console.log('Parent Dir:', parentDir);
+try {
+  console.log('Files in Parent:', fsOriginal.readdirSync(parentDir));
+} catch (e) {
+  console.log('Error reading parent dir:', e.message);
+}
 
-// Map URL path '/uploads/NgoaiThat4Web_images' -> Folder thực tế trên đĩa
+// Map URL path chính xác theo tên trong DB
+// Nếu DB lưu "NgoaiThat4Web_images/...", thì URL sẽ là /uploads/NgoaiThat4Web_images/...
+// Cần trỏ nó về đúng thư mục thật là "NgoaiThat4Web"
 app.use('/uploads/NgoaiThat4Web_images', express.static(path.join(parentDir, 'NgoaiThat4Web')));
 app.use('/uploads/NoiThat4Web_images', express.static(path.join(parentDir, 'NoiThat4Web')));
 app.use('/uploads/ThietBi4Web_images', express.static(path.join(parentDir, 'ThietBi4Web')));
+
+// Thử thêm map trực tiếp không có _images (phòng trường hợp DB lưu khác)
+app.use('/uploads/NgoaiThat4Web', express.static(path.join(parentDir, 'NgoaiThat4Web')));
+app.use('/uploads/NoiThat4Web', express.static(path.join(parentDir, 'NoiThat4Web')));
+app.use('/uploads/ThietBi4Web', express.static(path.join(parentDir, 'ThietBi4Web')));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
