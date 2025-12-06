@@ -684,7 +684,11 @@ app.post('/api/ml/diagnose', uploadMem.single('file'), async (req, res) => {
     await fs.writeFile(tempFilePath, fileBuffer);
 
     console.log('[ML] Starting detection with:', tempFilePath);
-    const pythonProcess = spawn('python', ['detector.py', tempFilePath]);
+
+    // Thử dùng python3 trước (cho Linux/Render), sau đó mới thử python (Windows)
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+
+    const pythonProcess = spawn(pythonCmd, ['detector.py', tempFilePath]);
     let resultData = '';
     let errorData = '';
 
@@ -693,38 +697,43 @@ app.post('/api/ml/diagnose', uploadMem.single('file'), async (req, res) => {
 
     await new Promise((resolve, reject) => {
       pythonProcess.on('close', (code) => {
-        if (errorData) console.warn(`[Python Warnings]: ${errorData} `);
         if (code !== 0) {
-          console.error(`[Python] Exit code: ${code} `);
-          console.error(`[Python] stderr: ${errorData} `);
-          console.error(`[Python] stdout: ${resultData} `);
-          return reject(new Error(`Python exited with code ${code}: ${errorData || 'No error message'} `));
+          console.error(`[Python] Exit code: ${code}`);
+          console.error(`[Python] stderr: ${errorData}`);
+          // Nếu lỗi do thiếu thư viện (ModuleNotFoundError) hoặc không có python
+          return reject(new Error('AI Server chưa được cài đặt đầy đủ thư viện (Torch, Pillow).'));
         }
         resolve();
       });
       pythonProcess.on('error', (err) => {
         console.error('[Python] Process error:', err);
-        reject(new Error(`Failed to start Python: ${err.message} `));
+        if (err.code === 'ENOENT') {
+          reject(new Error('Server không tìm thấy Python. Tính năng này chỉ hoạt động trên máy có Python.'));
+        } else {
+          reject(err);
+        }
       });
     });
 
     console.log('[ML] Python output length:', resultData.length);
-
-    // YOLO có thể in ra các dòng log trước JSON
-    // Chỉ lấy dòng cuối cùng (là JSON)
     const lines = resultData.trim().split('\n');
     const jsonLine = lines[lines.length - 1];
 
-    console.log('[ML] Parsing JSON from last line');
-    const jsonResult = JSON.parse(jsonLine);
-    res.json(jsonResult);
+    // Kiểm tra xem output có phải JSON không
+    try {
+      const jsonResult = JSON.parse(jsonLine);
+      res.json(jsonResult);
+    } catch (e) {
+      throw new Error('Kết quả từ AI không hợp lệ: ' + jsonLine);
+    }
 
   } catch (error) {
-    console.error('Error ML:', error);
-    console.error('Error stack:', error.stack);
-    res.status(500).json({
-      message: 'Lỗi AI Server',
-      details: error.message
+    console.error('Error ML:', error.message);
+    // Trả về 200 OK nhưng kèm thông báo lỗi để Frontend hiển thị đẹp thay vì popup 500
+    res.json({
+      detected: false,
+      message: 'Tính năng AI chưa khả dụng trên Cloud Server này (Thiếu GPU/Python Libs).',
+      products: [] // Trả về mảng rỗng để không crash UI
     });
   } finally {
     try { await fs.unlink(tempFilePath); } catch (e) { }
