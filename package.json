@@ -1,0 +1,22 @@
+{
+  "name": "autoparts_full",
+  "version": "1.0.0",
+  "description": "**AutoParts** là một ứng dụng web fullstack (React + Node.js + Express) mô phỏng hệ thống bán phụ kiện ô tô trực tuyến, kèm tính năng **nhận diện bộ phận xe bị hỏng** bằng **AI model (Mask R-CNN)**.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix autoparts-backend && npm install --prefix autoparts-frontend && npm run build --prefix autoparts-frontend",
+    "start": "npm run start --prefix autoparts-backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Trungkien280404/autoparts_full_monorepo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Trungkien280404/autoparts_full_monorepo/issues"
+  },
+  "homepage": "https://github.com/Trungkien280404/autoparts_full_monorepo#readme"
+}

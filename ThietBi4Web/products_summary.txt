@@ -1,0 +1,122 @@
+======================================================================
+TÓM TẮT DỮ LIỆU CRAWL
+======================================================================
+
+Thời gian bắt đầu: 2025-11-29 17:34:16
+Thời gian kết thúc: 2025-11-29 17:40:08
+Tổng thời gian crawl: 5 phút 51 giây
+Tổng số trang đã crawl: 5
+Tổng số sản phẩm: 81
+Thời gian trung bình mỗi sản phẩm: 4 giây
+
+======================================================================
+
+1. Cảm biến áp suất lốp Icar Ellisafe IP24L cho mọi dòng xe
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ap-suat-lop-texpad-tich-hop-man-hinh-odo-vf3.html
+   Mô tả: 4630 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+2. Cảm biến áp suất lốp Icar Ellisafe IP24L cho mọi dòng xe
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ap-suat-lop-icar-tn405-8173.html
+   Mô tả: 4630 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+3. Cảm biến áp suất lốp Icar Ellisafe IP24L cho mọi dòng xe
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/tpms-icar-j31-mazda-6-5265.html
+   Mô tả: 4630 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+4. Cảm biến áp suất lốp Icar Ellisafe IP24L cho mọi dòng xe
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ap-suat-lop-icar-ip24-37223.html
+   Mô tả: 4630 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+5. Cảm biến áp suất lốp Icar Ellisafe IP24L cho mọi dòng xe
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ap-suat-lop-icar-ellisafe-ip24-25675.html
+   Mô tả: 4630 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+6. Cảm biến áp suất lốp Icar Ellisafe i32 cho ô tô
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: Kia Cerato
+   URL: https://otohoangkim.com/cam-bien-ap-suat-lop-icar-i50-mercedes-2018-6124.html
+   Mô tả: 4864 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+7. Cảm biến áp suất lốp Icar Ellisafe i32 cho ô tô
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: Kia Cerato
+   URL: https://otohoangkim.com/cam-bien-ap-suat-lop-icar-i38-ford-5258.html
+   Mô tả: 4864 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+8. Cảm biến áp suất lốp Icar Ellisafe i32 cho ô tô
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: Kia Cerato
+   URL: https://otohoangkim.com/ap-suat-lop-icar-i35nn-navara-2022-26931.html
+   Mô tả: 4864 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+9. Cảm biến áp suất lốp Icar Ellisafe i32 cho ô tô
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: Kia Cerato
+   URL: https://otohoangkim.com/tpms-icar-i32-cerato-kia-2005.html
+   Mô tả: 942 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+10. Cảm biến áp suất lốp Icar Ellisafe i32 cho ô tô
+   Trang: 1
+   Giá: 3,800,000 ₫
+   Dòng xe: Kia Cerato
+   URL: https://otohoangkim.com/cam-bien-ap-suat-lop-icar-i35na-nissan-5862.html
+   Mô tả: 942 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+11. Cảm biến áp suất lốp Icar Ellisafe C397 ô tô Honda
+   Trang: 1
+   Giá: 2,800,000 ₫
+   Dòng xe: Honda
+   URL: https://otohoangkim.com/cam-bien-ap-suat-lop-icar-i17-hyundai-9434.html
+   Mô tả: 5634 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+12. Cảm biến áp suất lốp Icar Ellisafe C397 ô tô Honda
+   Trang: 1
+   Giá: 2,800,000 ₫
+   Dòng xe: Honda
+   URL: https://otohoangkim.com/ap-suat-lop-icar-i30-8303.html
+   Mô tả: 5634 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+13. Cảm biến áp suất lốp Icar Ellisafe C397 ô tô Honda
+   Trang: 1
+   Giá: 2,800,000 ₫
+   Dòng xe: Honda
+   URL: https://otohoangkim.com/cam-bien-ap-suat-lop-icar-i31-1992.html
+   Mô tả: 5634 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+14. Cảm biến áp suất lốp Icar Ellisafe C397 ô tô Honda
+   Trang: 1
+   Giá: 2,800,000 ₫
+   Dòng xe: Honda
+   URL: https://otohoangkim.com/tpms-icar-c398-toyota-7068.html

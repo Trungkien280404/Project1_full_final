@@ -1,0 +1,4 @@
+--- trained.pt ---
+{0: 'dent', 1: 'scratch', 2: 'crack', 3: 'shattered_glass', 4: 'broken_lamp', 5: 'flat_tire'}
+--- best.pt ---
+{0: 'Quarter-panel', 1: 'Front-wheel', 2: 'Back-window', 3: 'Trunk', 4: 'Front-door', 5: 'Rocker-panel', 6: 'Grille', 7: 'Windshield', 8: 'Front-window', 9: 'Back-door', 10: 'Headlight', 11: 'Back-wheel', 12: 'Back-windshield', 13: 'Hood', 14: 'Fender', 15: 'Tail-light', 16: 'License-plate', 17: 'Front-bumper', 18: 'Back-bumper', 19: 'Mirror', 20: 'Roof'}

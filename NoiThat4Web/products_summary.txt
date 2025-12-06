@@ -1,0 +1,66 @@
+======================================================================
+TÓM TẮT DỮ LIỆU CRAWL
+======================================================================
+
+Thời gian bắt đầu: 2025-11-29 15:43:46
+Thời gian kết thúc: 2025-11-29 17:16:05
+Tổng thời gian crawl: 1 giờ 32 phút 18 giây
+Tổng số trang đã crawl: 78
+Tổng số sản phẩm: 1631
+Thời gian trung bình mỗi sản phẩm: 3 giây
+
+======================================================================
+
+1. Ghế ngồi ô tô trẻ em Zaracos Cusco 6406 xoay 360 màu xám
+   Trang: 1
+   Giá: 3,685,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-zaracos-cusco-6406-xoay-360-60883-14268.html
+   Mô tả: 4589 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+2. Ghế ngồi ô tô trẻ em Zaracos Cohen 7186 màu kem
+   Trang: 1
+   Giá: 3,185,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-zaracos-cohen-7186-xam-70758-14267.html
+   Mô tả: 4194 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+3. Ghế ngồi ô tô trẻ em Jovikids OHHO
+   Trang: 1
+   Giá: 1,060,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-jovikids-ohho-88467-14256.html
+   Mô tả: 4471 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+4. Ghế ngồi ô tô trẻ em Jovikids Rober
+   Trang: 1
+   Giá: 2,450,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-jovikids-ohho-xanh-la-88467-14255.html
+   Mô tả: 4261 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+5. Ghế ngồi ô tô trẻ em Jovikids Rober
+   Trang: 1
+   Giá: 2,450,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-jovikids-ohho-88467-14254.html
+   Mô tả: 4261 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+6. Ghế ngồi ô tô trẻ em Jovikids Rober
+   Trang: 1
+   Giá: 2,450,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-jovikids-ohho-hong-88467-14253.html
+   Mô tả: 4261 ký tự
+   Thông số kỹ thuật: 2 nhóm
+
+7. Ghế ngồi ô tô trẻ em Jovikids Rober
+   Trang: 1
+   Giá: 2,450,000 ₫
+   Dòng xe: None
+   URL: https://otohoangkim.com/ghe-ngoi-o-to-tre-em-jovikids-ohho-xam-den-88467-14252.html

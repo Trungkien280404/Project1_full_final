@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for product description HTML content */
+.product-description h1 {
+  @apply text-2xl font-bold text-blue-900 mt-6 mb-3;
+}
+
+.product-description h2 {
+  @apply text-xl font-bold text-blue-900 mt-5 mb-2;
+}
+
+.product-description h3 {
+  @apply text-lg font-bold text-blue-800 mt-4 mb-2;
+}
+
+.product-description h4 {
+  @apply font-bold text-blue-700 mt-3 mb-1;
+}
+
+.product-description p {
+  @apply mb-3 leading-relaxed;
+}
+
+.product-description ul {
+  @apply list-disc list-inside mb-4 ml-2;
+}
+
+.product-description ol {
+  @apply list-decimal list-inside mb-4 ml-2;
+}
+
+.product-description li {
+  @apply mb-1;
+}
+
+.product-description b, .product-description strong {
+  @apply font-bold text-gray-900;
+}
+
+.product-description img {
+  @apply max-w-full h-auto rounded-lg my-4 mx-auto shadow-sm;
+}
+
+.product-description a {
+  @apply text-blue-600 underline hover:text-blue-800 transition-colors;
+}
+
+.product-description table {
+  @apply w-full border-collapse border border-gray-200 mb-4 text-sm;
+}
+
+.product-description th, .product-description td {
+  @apply border border-gray-200 px-3 py-2;
+}
+
+.product-description th {
+  @apply bg-gray-50 font-bold text-left;
+}
