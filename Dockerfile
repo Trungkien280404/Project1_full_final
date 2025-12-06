@@ -1,6 +1,6 @@
 
-# Sử dụng Base Image Node.js v18 (Bullseye là phiên bản Linux ổn định)
-FROM node:18-bullseye
+# Sử dụng Base Image Node.js v20 (Bookworm - Python 3.11)
+FROM node:20-bookworm
 
 # Thiết lập thư mục làm việc
 WORKDIR /app

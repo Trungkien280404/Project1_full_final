@@ -22,19 +22,29 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 VIS_TEMP_PATH = Path(os.path.abspath(os.path.dirname(__file__))) / "vis_temp.png"
 
-# --- LOAD YOLO MODELS ---
-# trained.pt: Phát hiện hư hỏng (Damage)
-# best.pt: Phát hiện bộ phận (Parts)
-try:
-    damage_model = YOLO("model/trained.pt", verbose=False) # Model phát hiện hư hỏng
-    part_model = YOLO("model/best.pt", verbose=False)      # Model phát hiện bộ phận
-except Exception as e:
-    print(json.dumps({"error": f"Error loading YOLO models: {str(e)}"}), file=sys.stdout)
-    sys.stdout.flush()
-    sys.exit(1)
+# --- LOAD YOLO MODELS (LAZY LOADING) ---
+# Không load ngay lập tức để tiết kiệm RAM lúc khởi động
+damage_model = None
+part_model = None
+
+def load_models():
+    global damage_model, part_model
+    try:
+        if damage_model is None:
+            print("[ML] Loading Damage Model...", file=sys.stderr)
+            damage_model = YOLO("model/trained.pt", verbose=False)
+        if part_model is None:
+            print("[ML] Loading Part Model...", file=sys.stderr)
+            part_model = YOLO("model/best.pt", verbose=False)
+    except Exception as e:
+        print(f"[ML-Error] Failed to load models: {e}", file=sys.stderr)
+        raise e
 
 def run_detection(image_path):
     try:
+        # Load model trước khi chạy (nếu chưa load)
+        load_models()
+
         # 1. Đọc ảnh
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Không tìm thấy ảnh: {image_path}")
