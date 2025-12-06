@@ -24,8 +24,15 @@ COPY . .
 
 # 2. Cài đặt dependency cho Backend (Python)
 WORKDIR /app/autoparts-backend
-# Lưu ý: Cài các thư viện nặng như torch có thể mất thời gian
-RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages
+
+# Nâng cấp pip
+RUN pip3 install --upgrade pip
+
+# QUAN TRỌNG: Cài PyTorch CPU trước để tránh tải bản GPU nặng (gây hết RAM)
+RUN pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# Sau đó mới cài các thư viện còn lại (ultralytics sẽ dùng torch đã cài sẵn)
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # 3. Cài đặt dependency cho Backend (Node.js)
 RUN npm install
