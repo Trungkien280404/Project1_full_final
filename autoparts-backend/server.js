@@ -35,7 +35,8 @@ app.use(cors({
       origin.includes('127.0.0.1') ||
       origin.includes('ngrok') ||
       origin.includes('ngrok-free.app') ||
-      origin.includes('devtunnels.ms')
+      origin.includes('devtunnels.ms') ||
+      origin.includes('onrender.com')
     ) {
       return callback(null, true);
     }
