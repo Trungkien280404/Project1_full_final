@@ -29,9 +29,16 @@ COPY . .
 # 2. Cài đặt dependency cho Backend (Python)
 WORKDIR /app/autoparts-backend
 
-# Giờ pip sẽ cài vào venv nên không cần --break-system-packages
+# Nâng cấp pip
 RUN pip install --upgrade pip
-RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# Cài numpy trước để tránh lỗi build
+RUN pip install numpy
+
+# QUAN TRỌNG: Dùng Torch 2.4.0 (cũ hơn 2.6) để tránh lỗi bảo mật "weights_only" và nhẹ hơn
+RUN pip install torch==2.4.0 torchvision==0.19.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Sau đó mới cài các thư viện còn lại
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 3. Cài đặt dependency cho Backend (Node.js)

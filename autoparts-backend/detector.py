@@ -16,12 +16,6 @@ warnings.filterwarnings('ignore')
 
 load_dotenv()  # Load environment variables from .env file
 
-import torch
-from ultralytics.nn.tasks import DetectionModel
-
-# Fix lỗi PyTorch 2.6+ chặn load model YOLO (Weights only load failed)
-torch.serialization.add_safe_globals([DetectionModel])
-
 # --- CẤU HÌNH API KEY ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
