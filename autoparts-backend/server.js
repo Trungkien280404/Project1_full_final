@@ -125,13 +125,46 @@ const adminAuth = (req, res, next) => {
   next();
 };
 
-// ===== Auth (GIỮ NGUYÊN) =====
+// Helper: Validate email format
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Helper: Validate password strength (min 6 chars, 1 uppercase, 1 special char)
+const isStrongPassword = (password) => {
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const isLongEnough = password.length >= 6;
+  return hasUpperCase && hasSpecialChar && isLongEnough;
+};
+
+// ===== Auth (CẬP NHẬT: VALIDATION NÂNG CAO) =====
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password } = req.body || {};
-  if (!password || String(password).length < 4) return res.status(400).json({ message: 'Mật khẩu yếu' });
+
+  // Validation: Email format
+  if (!email || !isValidEmail(email)) {
+    return res.status(400).json({ message: 'Email không đúng định dạng' });
+  }
+
+  // Validation: Password strength
+  if (!password || password.length < 6) {
+    return res.status(400).json({ message: 'Mật khẩu phải có ít nhất 6 ký tự' });
+  }
+
+  if (!isStrongPassword(password)) {
+    return res.status(400).json({
+      message: 'Mật khẩu phải có ít nhất 1 chữ in hoa và 1 ký tự đặc biệt (!@#$%...)'
+    });
+  }
+
   try {
     const existingUser = await query('SELECT 1 FROM users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) return res.status(409).json({ message: 'Email đã tồn tại' });
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ message: 'Đăng ký không thành công: Email đã tồn tại' });
+    }
+
     const salt = await bcryptModule.genSalt(10);
     const passwordHash = await bcryptModule.hash(password, salt);
     const sql = 'INSERT INTO users (name, email, role, password) VALUES ($1, $2, $3, $4) RETURNING email, role, name';
@@ -139,18 +172,38 @@ app.post('/api/auth/register', async (req, res) => {
     const u = result.rows[0];
     const token = signToken({ email: u.email, role: u.role, name: u.name });
     res.status(201).json({ token, user: { email: u.email, role: u.role, name: u.name } });
-  } catch (err) { res.status(500).json({ message: 'Lỗi máy chủ' }); }
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
 });
 
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body || {};
+
+  // Validation: Email format
+  if (!email || !isValidEmail(email)) {
+    return res.status(400).json({ message: 'Email không đúng định dạng' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: 'Vui lòng nhập mật khẩu' });
+  }
+
   try {
     const result = await query('SELECT * FROM users WHERE email = $1', [email]);
     const u = result.rows[0];
-    if (!u || !(await bcryptModule.compare(password, u.password))) return res.status(401).json({ message: 'Sai thông tin' });
+
+    if (!u || !(await bcryptModule.compare(password, u.password))) {
+      return res.status(401).json({ message: 'Đăng nhập không thành công: Sai email hoặc mật khẩu' });
+    }
+
     const token = signToken({ email: u.email, role: u.role, name: u.name });
     res.json({ token, user: { email: u.email, role: u.role, name: u.name } });
-  } catch (err) { res.status(500).json({ message: 'Lỗi máy chủ' }); }
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
 });
 
 // ... (Giữ nguyên các API forgot password) ...

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Api } from '../api.js';
 import Button from './Button.jsx';
 import Input from './Input.jsx';
+import Toast from './Toast.jsx';
 import { Spinner, IconEmail, IconLock, IconUser, IconEye, IconEyeOff } from './Icons.jsx';
 
 // Component Nút Tab tùy chỉnh
@@ -30,101 +31,147 @@ export default function AuthModal({ onClose, onLogin }) {
     const [fpConfirm, setFpConfirm] = useState('');
     const [verified, setVerified] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [msg, setMsg] = useState(null);
+    const [toast, setToast] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
 
-    function alertMsg(type, text) { setMsg({ type, text }); }
-    function clearMsg() { setMsg(null); }
+    // Client-side validation helpers
+    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isStrongPassword = (pwd) => {
+        const hasUpperCase = /[A-Z]/.test(pwd);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+        return pwd.length >= 6 && hasUpperCase && hasSpecialChar;
+    };
+
+    function showToast(type, text) {
+        setToast({ type, text });
+    }
+
+    function clearToast() {
+        setToast(null);
+    }
 
     async function submitLogin() {
+        // Frontend validation
+        if (!email || !isValidEmail(email)) {
+            return showToast('error', 'Email không đúng định dạng');
+        }
+        if (!password) {
+            return showToast('error', 'Vui lòng nhập mật khẩu');
+        }
+
         try {
-            setLoading(true); clearMsg();
+            setLoading(true); clearToast();
             const data = await Api.login(email, password);
             if (data?.token) {
-                onLogin(data);
-                onClose();
+                showToast('success', '✅ Đăng nhập thành công!');
+                setTimeout(() => {
+                    onLogin(data);
+                    onClose();
+                }, 800);
             } else {
-                alertMsg('error', data?.message || 'Đăng nhập thất bại');
+                showToast('error', data?.message || 'Đăng nhập không thành công');
             }
         } catch {
-            alertMsg('error', 'Không thể đăng nhập. Vui lòng kiểm tra Server.');
+            showToast('error', 'Không thể kết nối đến server');
         } finally { setLoading(false); }
     }
 
     async function submitRegister() {
+        // Frontend validation
+        if (!name || name.trim().length < 2) {
+            return showToast('error', 'Vui lòng nhập họ tên (ít nhất 2 ký tự)');
+        }
+        if (!email || !isValidEmail(email)) {
+            return showToast('error', 'Email không đúng định dạng');
+        }
+        if (!password || password.length < 6) {
+            return showToast('error', 'Mật khẩu phải có ít nhất 6 ký tự');
+        }
+        if (!isStrongPassword(password)) {
+            return showToast('error', 'Mật khẩu phải có ít nhất 1 chữ IN HOA và 1 ký tự đặc biệt (!@#$%...)');
+        }
+
         try {
-            setLoading(true); clearMsg();
+            setLoading(true); clearToast();
             const data = await Api.register(name, email, password);
             if (data?.token) {
-                onLogin(data);
-                onClose();
+                showToast('success', '🎉 Đăng ký thành công!');
+                setTimeout(() => {
+                    onLogin(data);
+                    onClose();
+                }, 800);
             } else {
-                alertMsg('error', data?.message || 'Đăng ký thất bại');
+                showToast('error', data?.message || 'Đăng ký không thành công');
             }
         } catch {
-            alertMsg('error', 'Không thể đăng ký. Vui lòng kiểm tra Server.');
+            showToast('error', 'Không thể kết nối đến server');
         } finally { setLoading(false); }
     }
 
     async function fpSendCode() {
         try {
-            if (!email) return alertMsg('error', 'Vui lòng nhập email');
-            setLoading(true); clearMsg();
+            if (!email || !isValidEmail(email)) return showToast('error', 'Vui lòng nhập email đúng định dạng');
+            setLoading(true); clearToast();
             const r = await Api.forgot(email);
-            alertMsg('success', r?.message || 'Nếu email tồn tại, mã đã được gửi.');
+            showToast('success', r?.message || 'Nếu email tồn tại, mã đã được gửi.');
             setFpStep(2);
         } catch {
-            alertMsg('error', 'Không thể gửi mã. Thử lại sau.');
+            showToast('error', 'Không thể gửi mã. Thử lại sau.');
         } finally { setLoading(false); }
     }
 
     async function fpVerify() {
         try {
-            if (!email || !fpCode) return alertMsg('error', 'Nhập email và mã xác minh');
-            setLoading(true); clearMsg();
+            if (!email || !fpCode) return showToast('error', 'Nhập email và mã xác minh');
+            setLoading(true); clearToast();
             const r = await Api.verifyReset(email, fpCode);
             if (r?.ok) {
                 setVerified(true);
-                alertMsg('success', 'Mã hợp lệ. Bạn có thể đặt mật khẩu mới.');
+                showToast('success', 'Mã hợp lệ. Bạn có thể đặt mật khẩu mới.');
             } else {
                 setVerified(false);
-                alertMsg('error', r?.message || 'Mã không đúng hoặc đã hết hạn.');
+                showToast('error', r?.message || 'Mã không đúng hoặc đã hết hạn.');
             }
         } catch {
             setVerified(false);
-            alertMsg('error', 'Không thể xác minh mã.');
+            showToast('error', 'Không thể xác minh mã.');
         } finally { setLoading(false); }
     }
 
     async function fpReset() {
         try {
-            if (!verified) return alertMsg('error', 'Bạn cần xác minh mã trước');
-            if (!fpNew || fpNew.length < 4) return alertMsg('error', 'Mật khẩu tối thiểu 4 ký tự');
-            if (fpNew !== fpConfirm) return alertMsg('error', 'Xác nhận mật khẩu không khớp');
-            setLoading(true); clearMsg();
+            if (!verified) return showToast('error', 'Bạn cần xác minh mã trước');
+            if (!fpNew || fpNew.length < 6) return showToast('error', 'Mật khẩu mới phải có ít nhất 6 ký tự');
+            if (!isStrongPassword(fpNew)) return showToast('error', 'Mật khẩu phải có ít nhất 1 chữ IN HOA và 1 ký tự đặc biệt');
+            if (fpNew !== fpConfirm) return showToast('error', 'Xác nhận mật khẩu không khớp');
+            setLoading(true); clearToast();
             const r = await Api.reset(email, fpCode, fpNew);
             if (r?.ok && r?.token) {
-                alertMsg('success', 'Đổi mật khẩu thành công. Đang đăng nhập…');
-                onLogin({ token: r.token, user: r.user });
-                onClose();
+                showToast('success', 'Đổi mật khẩu thành công. Đang đăng nhập…');
+                setTimeout(() => {
+                    onLogin({ token: r.token, user: r.user });
+                    onClose();
+                }, 800);
             } else {
-                alertMsg('error', r?.message || 'Đổi mật khẩu thất bại');
+                showToast('error', r?.message || 'Đổi mật khẩu thất bại');
             }
         } catch {
-            alertMsg('error', 'Không thể đổi mật khẩu');
+            showToast('error', 'Không thể đổi mật khẩu');
         } finally { setLoading(false); }
     }
 
-    // CSS cho thông báo
-    const msgClasses = {
-        success: 'bg-green-100 border-green-300 text-green-800',
-        error: 'bg-red-100 border-red-300 text-red-800',
-        info: 'bg-blue-100 border-blue-300 text-blue-800'
-    };
-
-
     return (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 md:pt-20">
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.text}
+                    onClose={clearToast}
+                    duration={4000}
+                />
+            )}
+
             {/* Backdrop */}
             <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={onClose} />
 
@@ -139,43 +186,49 @@ export default function AuthModal({ onClose, onLogin }) {
 
                     {/* Tab Navigation */}
                     <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
-                        <TabBtn active={tab === 'login'} onClick={() => { setTab('login'); clearMsg(); setShowPassword(false); }}>Đăng nhập</TabBtn>
-                        <TabBtn active={tab === 'register'} onClick={() => { setTab('register'); clearMsg(); setShowPassword(false); }}>Đăng ký</TabBtn>
-                        {/* Thay thế nút Quên mật khẩu bằng nút Đăng nhập/Đăng ký ảo để giữ layout 2 cột */}
-                        {/* Đảm bảo người dùng có thể chuyển sang tab Quên mật khẩu từ nút dưới trường mật khẩu */}
+                        <TabBtn active={tab === 'login'} onClick={() => { setTab('login'); clearToast(); setShowPassword(false); }}>Đăng nhập</TabBtn>
+                        <TabBtn active={tab === 'register'} onClick={() => { setTab('register'); clearToast(); setShowPassword(false); }}>Đăng ký</TabBtn>
                         {tab === 'forgot' && (
                             <TabBtn active={true} onClick={() => { }}>Mật khẩu mới</TabBtn>
                         )}
                     </div>
-
-                    {/* Message Box */}
-                    {msg && (
-                        <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msgClasses[msg.type] || msgClasses.info}`}>
-                            {msg.text}
-                        </div>
-                    )}
 
                     {/* LOGIN Tab */}
                     {tab === 'login' && (
                         <div className="space-y-4">
                             <div className="relative">
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><IconEmail /></span>
-                                <Input className="w-full !pl-10 h-12" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} disabled={loading} />
+                                <Input
+                                    className="w-full !pl-10 h-12"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    disabled={loading}
+                                    onKeyPress={e => e.key === 'Enter' && submitLogin()}
+                                />
                             </div>
                             <div className="relative">
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><IconLock /></span>
-                                <Input type={showPassword ? 'text' : 'password'} className="w-full !pl-10 h-12" placeholder="Mật khẩu" value={password} onChange={e => setPassword(e.target.value)} disabled={loading} />
+                                <Input
+                                    type={showPassword ? 'text' : 'password'}
+                                    className="w-full !pl-10 h-12"
+                                    placeholder="Mật khẩu"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    disabled={loading}
+                                    onKeyPress={e => e.key === 'Enter' && submitLogin()}
+                                />
                                 <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <IconEyeOff /> : <IconEye />}
                                 </button>
                             </div>
 
-                            {/* Nút Quên mật khẩu mới */}
+                            {/* Nút Quên mật khẩu */}
                             <div className="flex justify-end pt-1">
                                 <button
                                     type="button"
                                     className="text-sm text-blue-600 hover:underline font-medium"
-                                    onClick={() => { setTab('forgot'); setFpStep(1); setVerified(false); clearMsg(); setShowPassword(false); }}
+                                    onClick={() => { setTab('forgot'); setFpStep(1); setVerified(false); clearToast(); setShowPassword(false); }}
                                 >
                                     Quên mật khẩu?
                                 </button>
@@ -200,11 +253,25 @@ export default function AuthModal({ onClose, onLogin }) {
                             </div>
                             <div className="relative">
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><IconLock /></span>
-                                <Input type={showPassword ? 'text' : 'password'} className="w-full !pl-10 h-12" placeholder="Mật khẩu" value={password} onChange={e => setPassword(e.target.value)} disabled={loading} />
+                                <Input
+                                    type={showPassword ? 'text' : 'password'}
+                                    className="w-full !pl-10 h-12"
+                                    placeholder="Mật khẩu (chữ HOA + ký tự đặc biệt)"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    disabled={loading}
+                                    onKeyPress={e => e.key === 'Enter' && submitRegister()}
+                                />
                                 <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <IconEyeOff /> : <IconEye />}
                                 </button>
                             </div>
+
+                            {/* Password hint */}
+                            <p className="text-xs text-gray-500">
+                                💡 Mật khẩu mạnh: Tối thiểu 6 ký tự, có chữ IN HOA và ký tự đặc biệt (!@#$...)
+                            </p>
+
                             <Button className="w-full h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-700 font-semibold" onClick={submitRegister} disabled={loading}>
                                 {loading ? <Spinner className="w-5 h-5" /> : 'Tạo tài khoản'}
                             </Button>
@@ -235,14 +302,14 @@ export default function AuthModal({ onClose, onLogin }) {
                                         </Button>
                                     </div>
 
-                                    <Input type="password" className="w-full h-12" placeholder="Mật khẩu mới (tối thiểu 4 ký tự)" value={fpNew} onChange={e => setFpNew(e.target.value)} disabled={!verified || loading} />
+                                    <Input type="password" className="w-full h-12" placeholder="Mật khẩu mới (chữ HOA + ký tự đặc biệt)" value={fpNew} onChange={e => setFpNew(e.target.value)} disabled={!verified || loading} />
                                     <Input type="password" className="w-full h-12" placeholder="Xác nhận mật khẩu mới" value={fpConfirm} onChange={e => setFpConfirm(e.target.value)} disabled={!verified || loading} />
 
                                     <Button className="w-full h-12 flex items-center justify-center bg-blue-600 hover:bg-blue-700 font-semibold" onClick={fpReset} disabled={loading || !verified}>
                                         {loading ? <Spinner className="w-5 h-5" /> : 'Đổi mật khẩu'}
                                     </Button>
 
-                                    <button className="block mx-auto text-sm text-blue-600 hover:underline" onClick={() => { setFpStep(1); setVerified(false); clearMsg(); }}>
+                                    <button className="block mx-auto text-sm text-blue-600 hover:underline" onClick={() => { setFpStep(1); setVerified(false); clearToast(); }}>
                                         Gửi lại mã
                                     </button>
                                 </>
