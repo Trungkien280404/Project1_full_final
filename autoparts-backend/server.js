@@ -71,16 +71,15 @@ try {
 }
 
 // Map URL path chính xác theo tên trong DB
-// Nếu DB lưu "NgoaiThat4Web_images/...", thì URL sẽ là /uploads/NgoaiThat4Web_images/...
-// Cần trỏ nó về đúng thư mục thật là "NgoaiThat4Web"
-app.use('/uploads/NgoaiThat4Web_images', express.static(path.join(parentDir, 'NgoaiThat4Web')));
-app.use('/uploads/NoiThat4Web_images', express.static(path.join(parentDir, 'NoiThat4Web')));
-app.use('/uploads/ThietBi4Web_images', express.static(path.join(parentDir, 'ThietBi4Web')));
+// Cấu trúc thực tế: NgoaiThat4Web/images/file.webp
+app.use('/uploads/NgoaiThat4Web_images', express.static(path.join(parentDir, 'NgoaiThat4Web', 'images')));
+app.use('/uploads/NoiThat4Web_images', express.static(path.join(parentDir, 'NoiThat4Web', 'images')));
+app.use('/uploads/ThietBi4Web_images', express.static(path.join(parentDir, 'ThietBi4Web', 'images')));
 
-// Thử thêm map trực tiếp không có _images (phòng trường hợp DB lưu khác)
-app.use('/uploads/NgoaiThat4Web', express.static(path.join(parentDir, 'NgoaiThat4Web')));
-app.use('/uploads/NoiThat4Web', express.static(path.join(parentDir, 'NoiThat4Web')));
-app.use('/uploads/ThietBi4Web', express.static(path.join(parentDir, 'ThietBi4Web')));
+// Thử thêm map trực tiếp không có _images
+app.use('/uploads/NgoaiThat4Web', express.static(path.join(parentDir, 'NgoaiThat4Web', 'images')));
+app.use('/uploads/NoiThat4Web', express.static(path.join(parentDir, 'NoiThat4Web', 'images')));
+app.use('/uploads/ThietBi4Web', express.static(path.join(parentDir, 'ThietBi4Web', 'images')));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
