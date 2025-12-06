@@ -135,10 +135,14 @@ const isValidEmail = (email) => {
 // Helper: Kiểm tra typo trong email domain
 const checkEmailTypo = (email) => {
   const commonDomains = {
-    'gmail.com': ['gmaul.com', 'gmial.com', 'gmeil.com', 'gmai.com', 'gmall.com'],
-    'yahoo.com': ['yaho.com', 'yahooo.com', 'yhoo.com'],
-    'outlook.com': ['outlok.com', 'outloo.com', 'outlookk.com'],
-    'hotmail.com': ['hotmial.com', 'hotmal.com', 'hotmaii.com'],
+    'gmail.com': [
+      'gmaih.com', 'gmaul.com', 'gmial.com', 'gmeil.com', 'gmai.com',
+      'gmall.com', 'gmil.com', 'gmaill.com', 'gnail.com', 'gmal.com',
+      'gamil.com', 'gmaiil.com', 'gmailo.com'
+    ],
+    'yahoo.com': ['yaho.com', 'yahooo.com', 'yhoo.com', 'yhaoo.com', 'yahou.com'],
+    'outlook.com': ['outlok.com', 'outloo.com', 'outlookk.com', 'outluk.com'],
+    'hotmail.com': ['hotmial.com', 'hotmal.com', 'hotmaii.com', 'hotmil.com', 'homail.com'],
   };
 
   const domain = email.split('@')[1]?.toLowerCase();
