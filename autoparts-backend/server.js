@@ -55,8 +55,17 @@ const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fsOriginal.existsSync(uploadDir)) {
   fsOriginal.mkdirSync(uploadDir);
 }
-// Mở thư mục uploads để frontend có thể xem ảnh qua URL
+// Mở thư mục uploads để frontend có thể xem
 app.use('/uploads', express.static(uploadDir));
+
+// --- CẤU HÌNH PHỤC VỤ CÁC FOLDER ẢNH CÓ SẴN (NgoaiThat4Web, etc.) ---
+// Trên Render, các folder này nằm ở cấp cha (parent dir) so với folder backend
+const parentDir = path.join(process.cwd(), '..');
+
+// Map URL path '/uploads/NgoaiThat4Web_images' -> Folder thực tế trên đĩa
+app.use('/uploads/NgoaiThat4Web_images', express.static(path.join(parentDir, 'NgoaiThat4Web')));
+app.use('/uploads/NoiThat4Web_images', express.static(path.join(parentDir, 'NoiThat4Web')));
+app.use('/uploads/ThietBi4Web_images', express.static(path.join(parentDir, 'ThietBi4Web')));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
