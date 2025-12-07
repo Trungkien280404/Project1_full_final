@@ -74,7 +74,7 @@ export default function App() {
         id: item.product_id,
         name: item.name,
         price: item.price,
-        image: item.image,
+        image: item.image_path, // Backend trả về image_path
         stock: item.stock,
         qty: item.quantity,
         cartItemId: item.id // Lưu ID của cart item để update/delete

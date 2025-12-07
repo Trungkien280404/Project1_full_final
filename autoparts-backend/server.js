@@ -1131,7 +1131,7 @@ app.get('/api/cart', auth, async (req, res) => {
   try {
     const result = await query(`
       SELECT c.id, c.product_id, c.quantity, c.created_at,
-             p.name, p.price, p.image, p.stock
+             p.name, p.price, p.image_path, p.stock
       FROM cart c
       JOIN products p ON c.product_id = p.id
       WHERE c.user_email = $1
