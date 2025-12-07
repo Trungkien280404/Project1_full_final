@@ -1251,8 +1251,12 @@ app.delete('/api/cart', auth, async (req, res) => {
 const frontendDistPath = path.join(process.cwd(), '..', 'autoparts-frontend', 'dist');
 console.log('Serving frontend from:', frontendDistPath);
 
-// Serve static assets (JS, CSS, images)
-app.use(express.static(frontendDistPath));
+// Serve static assets (JS, CSS, images) with cache control
+app.use(express.static(frontendDistPath, {
+  maxAge: '1d', // Cache for 1 day
+  etag: true,
+  lastModified: true
+}));
 
 // SPA fallback - Serve index.html for all non-API routes
 app.get('*', (req, res) => {
