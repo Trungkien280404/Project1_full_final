@@ -1247,6 +1247,23 @@ app.delete('/api/cart', auth, async (req, res) => {
   }
 });
 
+// ===== Serve Frontend (Production) =====
+const frontendDistPath = path.join(process.cwd(), '..', 'autoparts-frontend', 'dist');
+console.log('Serving frontend from:', frontendDistPath);
+
+// Serve static assets (JS, CSS, images)
+app.use(express.static(frontendDistPath));
+
+// SPA fallback - Serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  // Không serve index.html cho API routes
+  if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
+    return res.status(404).json({ message: 'Not found' });
+  }
+
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
