@@ -36,8 +36,9 @@ export default function AuthModal({ onClose, onLogin }) {
 
     // Client-side validation helpers
     const isValidEmail = (email) => {
-        // Regex chặt chẽ hơn: TLD phải ít nhất 2 ký tự
-        return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+        // Regex chặt chẽ: TLD phải 2-6 ký tự chữ (không số, không ký tự đặc biệt)
+        // Ví dụ: .com, .vn, .co.uk - KHÔNG: .con, .x
+        return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
     };
 
     const checkEmailTypo = (email) => {
