@@ -45,5 +45,13 @@ export const PART_LABELS = {
   "Missing part": "Thiếu bộ phận",
   "Flaking": "Bong tróc",
   "Corrosion": "Ăn mòn",
-  "Cracked": "Nứt"
+  "Cracked": "Nứt",
+
+  // Lowercase keys from YOLO
+  "dent": "Móp",
+  "scratch": "Trầy xước",
+  "crack": "Nứt",
+  "broken_lamp": "Vỡ đèn",
+  "glass_shatter": "Vỡ kính",
+  "tire_flat": "Xẹp lốp"
 };

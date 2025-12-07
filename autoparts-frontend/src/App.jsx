@@ -3,6 +3,7 @@ import { Api, setToken } from './api.js';
 import Header from './components/Header.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import { Spinner } from './components/Icons.jsx';
+import Toast from './components/Toast.jsx';
 
 // Lazy load components
 const Catalog = lazy(() => import('./components/Catalog.jsx'));
@@ -39,6 +40,13 @@ export default function App() {
 
   // State để lưu ID sản phẩm đang xem chi tiết
   const [selectedProductId, setSelectedProductId] = useState(null);
+
+  // Global Toast State
+  const [toast, setToast] = useState(null);
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+  };
 
   // Hàm điều hướng có kiểm tra đăng nhập
   function handleNavigate(targetRoute, params = {}) {
@@ -96,7 +104,7 @@ export default function App() {
 
   async function addToCart(p) {
     if (!session) {
-      alert('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      showToast('warning', 'Vui lòng đăng nhập để thêm vào giỏ hàng');
       setShowAuth(true);
       return;
     }
@@ -105,9 +113,10 @@ export default function App() {
       await Api.addToCart(p.id, 1);
       // Reload cart từ server để đảm bảo đồng bộ
       await loadCartFromServer();
+      showToast('success', 'Đã thêm vào giỏ hàng!');
     } catch (err) {
       console.error('Add to cart failed:', err);
-      alert('Không thể thêm vào giỏ hàng');
+      showToast('error', 'Không thể thêm vào giỏ hàng');
     }
   }
 
@@ -126,7 +135,7 @@ export default function App() {
       await loadCartFromServer();
     } catch (err) {
       console.error('Decrease cart failed:', err);
-      alert('Không thể cập nhật giỏ hàng');
+      showToast('error', 'Không thể cập nhật giỏ hàng');
     }
   }
 
@@ -137,9 +146,10 @@ export default function App() {
     try {
       await Api.removeFromCart(item.cartItemId);
       await loadCartFromServer();
+      showToast('success', 'Đã xóa sản phẩm khỏi giỏ hàng');
     } catch (err) {
       console.error('Remove from cart failed:', err);
-      alert('Không thể xóa khỏi giỏ hàng');
+      showToast('error', 'Không thể xóa khỏi giỏ hàng');
     }
   }
 
@@ -154,7 +164,7 @@ export default function App() {
       setCart([]);
     } catch (err) {
       console.error('Clear cart failed:', err);
-      alert('Không thể xóa giỏ hàng');
+      showToast('error', 'Không thể xóa giỏ hàng');
     }
   }
 
@@ -180,6 +190,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full relative bg-white">
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+          duration={3000}
+        />
+      )}
+
       {/* Hiệu ứng nền (Background Glow) */}
       <div
         className="absolute inset-0 z-0 pointer-events-none"
@@ -228,8 +248,6 @@ export default function App() {
                     setRoute('orders');
                   } else {
                     setRoute('home');
-                    // Show a friendly message for guests
-                    alert('✅ Đặt hàng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.\n\n💡 Mẹo: Đăng nhập để theo dõi đơn hàng của bạn!');
                   }
                 }}
                 removeFromCart={removeFromCart}

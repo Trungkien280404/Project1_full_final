@@ -4,12 +4,14 @@ import Card from './Card.jsx';
 import Button from './Button.jsx';
 import Input from './Input.jsx';
 import { Spinner } from './Icons.jsx';
+import Toast from './Toast.jsx';
 
 export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFromCart }) {
   const [info, setInfo] = useState({ name: '', phone: '', address: '' });
   const [method, setMethod] = useState('cod');
   const [installation, setInstallation] = useState({ method: '', time: '' });
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // Address Management State
   const [savedAddresses, setSavedAddresses] = useState([]);
@@ -54,18 +56,22 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
   const installFee = installation.method === 'home' ? 150000 : 0;
   const finalTotal = productTotal + installFee;
 
+  const showToast = (type, message) => {
+    setToast({ type, message });
+  };
+
   async function handleOrder() {
     if (!info.name || !info.phone || !info.address) {
-      return alert('Vui lòng điền đầy đủ thông tin giao hàng.');
+      return showToast('warning', 'Vui lòng điền đầy đủ thông tin giao hàng.');
     }
     if (!/^\d{10,11}$/.test(info.phone)) {
-      return alert('Số điện thoại không hợp lệ (10-11 số).');
+      return showToast('warning', 'Số điện thoại không hợp lệ (10-11 số).');
     }
     if (!installation.method) {
-      return alert('Vui lòng chọn phương thức lắp đặt.');
+      return showToast('warning', 'Vui lòng chọn phương thức lắp đặt.');
     }
     if (installation.method === 'home' && !installation.time) {
-      return alert('Vui lòng nhập thời gian mong muốn lắp đặt.');
+      return showToast('warning', 'Vui lòng nhập thời gian mong muốn lắp đặt.');
     }
 
     setLoading(true);
@@ -88,12 +94,20 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
         installation
       );
 
-      alert(`🎉 Đặt hàng thành công!\nCảm ơn ${info.name}.`);
-      onCheckoutSuccess();
+      const successMsg = isLoggedIn
+        ? `🎉 Đặt hàng thành công! Cảm ơn ${info.name}.`
+        : `🎉 Đặt hàng thành công! Cảm ơn ${info.name}. Hãy đăng nhập để theo dõi đơn hàng!`;
+
+      showToast('success', successMsg);
+
+      // Delay to show toast
+      setTimeout(() => {
+        onCheckoutSuccess();
+      }, 2000);
+
     } catch (e) {
-      alert('Lỗi đặt hàng: ' + e.message);
-    } finally {
-      setLoading(false);
+      showToast('error', 'Lỗi đặt hàng: ' + e.message);
+      setLoading(false); // Only stop loading on error, on success we keep loading to block interactions till redirect
     }
   }
 
@@ -108,7 +122,17 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-6 pb-10">
+    <div className="grid md:grid-cols-2 gap-6 pb-10 relative">
+      {/* Toast */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+          duration={3000}
+        />
+      )}
+
       <div className="space-y-6">
         <Card>
           <div className="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">

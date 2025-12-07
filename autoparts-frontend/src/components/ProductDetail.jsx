@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Api } from '../api.js';
 import { Spinner } from './Icons.jsx';
+import Toast from './Toast.jsx';
 
 export default function ProductDetail({ productId, addToCart, onBack, onNavigate }) {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState(null);
 
     // Tư vấn form data
     const [consultName, setConsultName] = useState('');
@@ -30,23 +32,27 @@ export default function ProductDetail({ productId, addToCart, onBack, onNavigate
             .finally(() => setLoading(false));
     }, [productId]);
 
+    const showToast = (type, message) => {
+        setToast({ type, message });
+    };
+
     const handleConsult = async () => {
         if (!consultName.trim() || !consultPhone.trim()) {
-            return alert("Vui lòng nhập họ tên và số điện thoại.");
+            return showToast('warning', "Vui lòng nhập họ tên và số điện thoại.");
         }
         try {
             await Api.submitConsultation({ product_id: product.id, name: consultName, phone: consultPhone });
-            alert("Chúng tôi đã nhận được thông tin và sẽ liên hệ sớm nhất!");
+            showToast('success', "Chúng tôi đã nhận được thông tin và sẽ liên hệ sớm nhất!");
             setConsultName('');
             setConsultPhone('');
         } catch (e) {
             console.error(e);
-            alert("Có lỗi xảy ra, vui lòng thử lại.");
+            showToast('error', "Có lỗi xảy ra, vui lòng thử lại.");
         }
     };
 
     const handleReviewSubmit = async () => {
-        if (!newReview.comment.trim()) return alert("Vui lòng nhập nội dung đánh giá");
+        if (!newReview.comment.trim()) return showToast('warning', "Vui lòng nhập nội dung đánh giá");
         try {
             const addedReview = await Api.addReview({
                 product_id: product.id,
@@ -55,15 +61,13 @@ export default function ProductDetail({ productId, addToCart, onBack, onNavigate
             });
             setReviews([addedReview, ...reviews]);
             setNewReview({ rating: 5, comment: '' });
-            alert("Cảm ơn bạn đã đánh giá!");
+            showToast('success', "Cảm ơn bạn đã đánh giá!");
         } catch (e) {
             console.error(e);
             if (e.message && (e.message.includes("401") || e.message.toLowerCase().includes("unauthorized"))) {
-                if (confirm("Bạn cần đăng nhập để đánh giá. Đăng nhập ngay?")) {
-                    window.location.reload();
-                }
+                showToast('warning', "Bạn cần đăng nhập để đánh giá.");
             } else {
-                alert("Gửi đánh giá thất bại. Vui lòng đăng nhập và thử lại.");
+                showToast('error', "Gửi đánh giá thất bại. Vui lòng đăng nhập và thử lại.");
             }
         }
     };
@@ -80,6 +84,14 @@ export default function ProductDetail({ productId, addToCart, onBack, onNavigate
 
     return (
         <div className="animate-fade-in pb-10">
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={() => setToast(null)}
+                    duration={3000}
+                />
+            )}
             <button onClick={onBack} className="flex items-center text-gray-600 hover:text-blue-600 mb-4 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -134,9 +146,8 @@ export default function ProductDetail({ productId, addToCart, onBack, onNavigate
                                 onClick={() => {
                                     if (product.stock > 0) {
                                         addToCart(product);
-                                        alert('Đã thêm vào giỏ hàng!');
                                     } else {
-                                        alert('Sản phẩm tạm hết hàng');
+                                        showToast('error', 'Sản phẩm tạm hết hàng');
                                     }
                                 }}
                                 disabled={product.stock <= 0}
