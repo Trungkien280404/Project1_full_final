@@ -87,7 +87,11 @@ export default function App() {
 
   // Sync cart khi đăng nhập
   useEffect(() => {
-    loadCartFromServer();
+    if (session?.email) {
+      loadCartFromServer();
+    } else {
+      setCart([]); // Clear cart khi đăng xuất
+    }
   }, [session?.email]); // Re-load khi email thay đổi (đăng nhập/đăng xuất)
 
   async function addToCart(p) {
