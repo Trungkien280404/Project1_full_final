@@ -276,7 +276,7 @@ export default function Catalog({ cart, onAddToCart, onDecreaseFromCart, onCheck
                 {cart.map(i => (
                   <div key={i.id} className="flex gap-3 p-2 hover:bg-gray-50 rounded-lg transition group">
                     <div className="w-14 h-14 rounded-md border border-gray-200 bg-white overflow-hidden flex-shrink-0">
-                      <img src={i.image_path || i.img} className="w-full h-full object-cover" alt={i.name} onError={(e) => { e.target.src = 'https://placehold.co/150x150?text=No+Img' }} />
+                      <img src={i.image} className="w-full h-full object-cover" alt={i.name} onError={(e) => { e.target.src = 'https://placehold.co/150x150?text=No+Img' }} />
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="text-sm font-medium text-gray-800 line-clamp-1" title={i.name}>{i.name}</div>
