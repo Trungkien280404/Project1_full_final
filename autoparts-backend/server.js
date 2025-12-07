@@ -1124,6 +1124,129 @@ app.post('/api/admin/imports', async (req, res) => {
   }
 });
 
+// ===== Cart Management (Giỏ hàng lưu theo tài khoản) =====
+
+// GET /api/cart - Lấy giỏ hàng của user
+app.get('/api/cart', auth, async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT c.id, c.product_id, c.quantity, c.created_at,
+             p.name, p.price, p.image, p.stock
+      FROM cart c
+      JOIN products p ON c.product_id = p.id
+      WHERE c.user_email = $1
+      ORDER BY c.created_at DESC
+    `, [req.user.email]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Get cart error:', err);
+    res.status(500).json({ message: 'Lỗi khi tải giỏ hàng' });
+  }
+});
+
+// POST /api/cart - Thêm sản phẩm vào giỏ hàng
+app.post('/api/cart', auth, async (req, res) => {
+  try {
+    const { product_id, quantity = 1 } = req.body;
+
+    if (!product_id || quantity < 1) {
+      return res.status(400).json({ message: 'Thông tin không hợp lệ' });
+    }
+
+    // Kiểm tra sản phẩm có tồn tại không
+    const productCheck = await query('SELECT id, stock FROM products WHERE id = $1', [product_id]);
+    if (productCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+    }
+
+    // Kiểm tra đã có trong giỏ hàng chưa
+    const existing = await query(
+      'SELECT id, quantity FROM cart WHERE user_email = $1 AND product_id = $2',
+      [req.user.email, product_id]
+    );
+
+    if (existing.rows.length > 0) {
+      // Cập nhật số lượng
+      const newQuantity = existing.rows[0].quantity + quantity;
+      await query(
+        'UPDATE cart SET quantity = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+        [newQuantity, existing.rows[0].id]
+      );
+    } else {
+      // Thêm mới
+      await query(
+        'INSERT INTO cart (user_email, product_id, quantity) VALUES ($1, $2, $3)',
+        [req.user.email, product_id, quantity]
+      );
+    }
+
+    res.json({ message: 'Đã thêm vào giỏ hàng' });
+  } catch (err) {
+    console.error('Add to cart error:', err);
+    res.status(500).json({ message: 'Lỗi khi thêm vào giỏ hàng' });
+  }
+});
+
+// PUT /api/cart/:id - Cập nhật số lượng sản phẩm trong giỏ
+app.put('/api/cart/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (quantity < 1) {
+      return res.status(400).json({ message: 'Số lượng phải lớn hơn 0' });
+    }
+
+    // Kiểm tra quyền sở hữu
+    const check = await query('SELECT id FROM cart WHERE id = $1 AND user_email = $2', [id, req.user.email]);
+    if (check.rows.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm trong giỏ hàng' });
+    }
+
+    await query(
+      'UPDATE cart SET quantity = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      [quantity, id]
+    );
+
+    res.json({ message: 'Đã cập nhật số lượng' });
+  } catch (err) {
+    console.error('Update cart error:', err);
+    res.status(500).json({ message: 'Lỗi khi cập nhật giỏ hàng' });
+  }
+});
+
+// DELETE /api/cart/:id - Xóa sản phẩm khỏi giỏ hàng
+app.delete('/api/cart/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Kiểm tra quyền sở hữu
+    const check = await query('SELECT id FROM cart WHERE id = $1 AND user_email = $2', [id, req.user.email]);
+    if (check.rows.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm trong giỏ hàng' });
+    }
+
+    await query('DELETE FROM cart WHERE id = $1', [id]);
+
+    res.json({ message: 'Đã xóa khỏi giỏ hàng' });
+  } catch (err) {
+    console.error('Delete cart error:', err);
+    res.status(500).json({ message: 'Lỗi khi xóa khỏi giỏ hàng' });
+  }
+});
+
+// DELETE /api/cart - Xóa toàn bộ giỏ hàng
+app.delete('/api/cart', auth, async (req, res) => {
+  try {
+    await query('DELETE FROM cart WHERE user_email = $1', [req.user.email]);
+    res.json({ message: 'Đã xóa toàn bộ giỏ hàng' });
+  } catch (err) {
+    console.error('Clear cart error:', err);
+    res.status(500).json({ message: 'Lỗi khi xóa giỏ hàng' });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);

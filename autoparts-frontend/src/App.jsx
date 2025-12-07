@@ -57,43 +57,101 @@ export default function App() {
     setRoute(targetRoute);
   }
 
-  // === QUẢN LÝ GIỎ HÀNG Ở APP ===
+  // === QUẢN LÝ GIỎ HÀNG VỚI ĐỒNG BỘ SERVER ===
   const [cart, setCart] = useState([]);
 
-  function addToCart(p) {
-    setCart(prev => {
-      const i = prev.findIndex(x => x.id === p.id);
-      if (i >= 0) {
-        const cp = [...prev];
-        cp[i].qty += 1;
-        return cp;
-      }
-      return [...prev, { ...p, qty: 1 }];
-    });
+  // Load cart từ server khi đăng nhập
+  async function loadCartFromServer() {
+    if (!session) {
+      setCart([]);
+      return;
+    }
+
+    try {
+      const serverCart = await Api.getCart();
+      // Convert server format to local format
+      const localCart = serverCart.map(item => ({
+        id: item.product_id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        stock: item.stock,
+        qty: item.quantity,
+        cartItemId: item.id // Lưu ID của cart item để update/delete
+      }));
+      setCart(localCart);
+    } catch (err) {
+      console.error('Failed to load cart:', err);
+    }
   }
 
-  function decreaseFromCart(productId) {
-    setCart(prev => {
-      const i = prev.findIndex(x => x.id === productId);
-      if (i < 0) return prev; // Không tìm thấy
+  // Sync cart khi đăng nhập
+  useEffect(() => {
+    loadCartFromServer();
+  }, [session?.email]); // Re-load khi email thay đổi (đăng nhập/đăng xuất)
 
-      const cp = [...prev];
-      if (cp[i].qty > 1) {
-        cp[i].qty -= 1;
-        return cp;
+  async function addToCart(p) {
+    if (!session) {
+      alert('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      setShowAuth(true);
+      return;
+    }
+
+    try {
+      await Api.addToCart(p.id, 1);
+      // Reload cart từ server để đảm bảo đồng bộ
+      await loadCartFromServer();
+    } catch (err) {
+      console.error('Add to cart failed:', err);
+      alert('Không thể thêm vào giỏ hàng');
+    }
+  }
+
+  async function decreaseFromCart(productId) {
+    const item = cart.find(x => x.id === productId);
+    if (!item) return;
+
+    try {
+      if (item.qty > 1) {
+        // Giảm số lượng
+        await Api.updateCartItem(item.cartItemId, item.qty - 1);
       } else {
-        // Nếu còn 1 thì xóa luôn
-        return prev.filter(item => item.id !== productId);
+        // Xóa khỏi giỏ
+        await Api.removeFromCart(item.cartItemId);
       }
-    });
+      await loadCartFromServer();
+    } catch (err) {
+      console.error('Decrease cart failed:', err);
+      alert('Không thể cập nhật giỏ hàng');
+    }
   }
 
-  function removeFromCart(productId) {
-    setCart(prev => prev.filter(item => item.id !== productId));
+  async function removeFromCart(productId) {
+    const item = cart.find(x => x.id === productId);
+    if (!item) return;
+
+    try {
+      await Api.removeFromCart(item.cartItemId);
+      await loadCartFromServer();
+    } catch (err) {
+      console.error('Remove from cart failed:', err);
+      alert('Không thể xóa khỏi giỏ hàng');
+    }
   }
 
-  function clearCart() {
-    setCart([]);
+  async function clearCart() {
+    if (!session) {
+      setCart([]);
+      return;
+    }
+
+    try {
+      await Api.clearCart();
+      setCart([]);
+    } catch (err) {
+      console.error('Clear cart failed:', err);
+      alert('Không thể xóa giỏ hàng');
+    }
   }
 
   // Gửi ping traffic khi vào app

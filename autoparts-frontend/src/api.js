@@ -164,4 +164,11 @@ export const Api = {
   getAddresses: () => jget('/api/user/addresses'),
   addAddress: (data) => jpost('/api/user/addresses', data),
   deleteAddress: (id) => jdel(`/api/user/addresses/${id}`),
+
+  // --- Cart Management ---
+  getCart: () => jget('/api/cart'),
+  addToCart: (product_id, quantity = 1) => jpost('/api/cart', { product_id, quantity }),
+  updateCartItem: (id, quantity) => jput(`/api/cart/${id}`, { quantity }),
+  removeFromCart: (id) => jdel(`/api/cart/${id}`),
+  clearCart: () => jdel('/api/cart'),
 };
