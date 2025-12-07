@@ -471,7 +471,15 @@ app.post('/api/products', auth, uploadProduct.single('image'), async (req, res) 
       isNaN(stockNum) ? 0 : stockNum,
       imgUrl,
       description || '',
-      specifications || '{}'
+      (() => {
+        try {
+          if (!specifications) return '{}';
+          JSON.parse(specifications);
+          return specifications;
+        } catch (e) {
+          return JSON.stringify({ content: specifications });
+        }
+      })()
     ];
 
     const result = await query(sql, values);
@@ -504,7 +512,18 @@ app.put('/api/products/:id', auth, uploadProduct.single('image'), async (req, re
     const newPrice = price !== undefined ? Number(price) : p.price;
     const newStock = stock !== undefined ? Number(stock) : p.stock;
     const newDesc = description !== undefined ? description : p.description;
-    const newSpecs = specifications !== undefined ? specifications : p.specifications;
+    let newSpecs = specifications !== undefined ? specifications : p.specifications;
+    if (specifications !== undefined) {
+      try {
+        if (!specifications) newSpecs = '{}';
+        else {
+          JSON.parse(specifications);
+          newSpecs = specifications;
+        }
+      } catch (e) {
+        newSpecs = JSON.stringify({ content: specifications });
+      }
+    }
 
     // SQL Update: Thêm cột brand, description, specifications, image_path
     const sql = `

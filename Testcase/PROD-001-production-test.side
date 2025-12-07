@@ -1,0 +1,366 @@
+{
+  "id": "prod-001-production",
+  "version": "2.0",
+  "name": "PROD-001 - Test Production",
+  "url": "https://project1-full-final.onrender.com",
+  "tests": [
+    {
+      "id": "test-catalog-full",
+      "name": "PROD-001_Kiem_tra_danh_muc_san_pham",
+      "commands": [
+        {
+          "id": "step-1",
+          "comment": "🚀 Step 1: Truy cập trang web",
+          "command": "open",
+          "target": "/",
+          "value": ""
+        },
+        {
+          "id": "step-2",
+          "comment": "⏳ Đợi trang load (Render có thể chậm lần đầu)",
+          "command": "pause",
+          "target": "5000",
+          "value": ""
+        },
+        {
+          "id": "step-3",
+          "comment": "Đợi hết loading skeleton",
+          "command": "waitForElementNotPresent",
+          "target": "css=div.animate-pulse",
+          "value": "30000"
+        },
+        {
+          "id": "step-4",
+          "comment": "✅ Verify: Tiêu đề Danh mục sản phẩm",
+          "command": "assertElementPresent",
+          "target": "xpath=//div[contains(text(),'Danh mục sản phẩm')]",
+          "value": ""
+        },
+        {
+          "id": "step-5",
+          "comment": "📦 Đếm số sản phẩm",
+          "command": "executeScript",
+          "target": "return document.querySelectorAll('div.bg-white.border. rounded-xl.overflow-hidden. shadow-sm').length",
+          "value": "totalProducts"
+        },
+        {
+          "id": "step-6",
+          "command": "echo",
+          "target": "📦 Tổng số sản phẩm trên trang: ${totalProducts}",
+          "value": ""
+        },
+        {
+          "id": "step-7",
+          "comment": "Verify có ít nhất 1 sản phẩm",
+          "command": "assert",
+          "target": "totalProducts",
+          "value": "^[1-9][0-9]*$"
+        },
+        {
+          "id": "step-8",
+          "comment": "🔍 KIỂM TRA TẤT CẢ SẢN PHẨM",
+          "command": "executeScript",
+          "target": "const products = document.querySelectorAll('div.bg-white. border.rounded-xl.overflow-hidden.shadow-sm'); let pass = 0; let fail = 0; let details = []; products.forEach((p, i) => { const img = p.querySelector('div.aspect-square img'); const name = p.querySelector('h3.font-medium.text-gray-900'); const price = p.querySelector('span.text-blue-600.font-bold'); let errors = []; let productName = name?.textContent?.trim() || 'Không có tên'; let productPrice = price?.textContent?.trim() || 'Không có giá'; let hasImage = img && img.src && img.src.length > 0; if (!hasImage) errors.push('Thiếu ảnh'); if (! name || ! name.textContent?. trim()) errors.push('Thiếu tên'); if (!price || !price.textContent?.trim()) errors.push('Thiếu giá'); else if (! price.textContent. includes('₫') && price.textContent !== 'Liên hệ') errors.push('Giá sai format'); if (errors.length === 0) { pass++; details.push('✅ SP ' + (i+1) + ': ' + productName. substring(0,30) + '... | ' + productPrice); } else { fail++; details.push('❌ SP ' + (i+1) + ': ' + errors.join(', ')); } }); console.log('='.repeat(60)); console.log('📊 KẾT QUẢ KIỂM TRA SẢN PHẨM'); console.log('='.repeat(60)); details.forEach(d => console.log(d)); console.log('='.repeat(60)); console.log('Tổng: ' + products.length + ' | Pass: ' + pass + ' | Fail: ' + fail); console.log('Tỷ lệ: ' + ((pass/products.length)*100).toFixed(1) + '%'); console.log('='.repeat(60)); return JSON.stringify({ total: products.length, pass: pass, fail: fail, rate: ((pass/products.length)*100).toFixed(1) + '%' });",
+          "value": "checkResult"
+        },
+        {
+          "id": "step-9",
+          "command": "echo",
+          "target": "📊 Kết quả: ${checkResult}",
+          "value": ""
+        },
+        {
+          "id": "step-10",
+          "comment": "Lấy số lỗi",
+          "command": "executeScript",
+          "target": "return JSON.parse(arguments[0]). fail;",
+          "value": "failCount"
+        },
+        {
+          "id": "step-11",
+          "command": "echo",
+          "target": "❌ Số sản phẩm lỗi: ${failCount}",
+          "value": ""
+        },
+        {
+          "id": "step-12",
+          "comment": "✅ ASSERT: Không có lỗi",
+          "command": "assert",
+          "target": "failCount",
+          "value": "^0$"
+        },
+        {
+          "id": "step-13",
+          "command": "echo",
+          "target": "🎉 TEST PASSED: Tất cả sản phẩm hiển thị đầy đủ ẢNH, TÊN, GIÁ",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "test-product-details",
+      "name": "PROD-001_In_chi_tiet_san_pham",
+      "commands": [
+        {
+          "id": "open",
+          "command": "open",
+          "target": "/",
+          "value": ""
+        },
+        {
+          "id": "wait",
+          "command": "pause",
+          "target": "5000",
+          "value": ""
+        },
+        {
+          "id": "wait-load",
+          "command": "waitForElementNotPresent",
+          "target": "css=div.animate-pulse",
+          "value": "30000"
+        },
+        {
+          "id": "print-all",
+          "comment": "📋 In chi tiết từng sản phẩm ra Console",
+          "command": "executeScript",
+          "target": "const products = document.querySelectorAll('div.bg-white.border.rounded-xl.overflow-hidden.shadow-sm'); console.log(''); console.log('╔' + '═'.repeat(70) + '╗'); console. log('║' + ' '. repeat(20) + '📋 CHI TIẾT SẢN PHẨM' + ' '.repeat(29) + '║'); console.log('╚' + '═'.repeat(70) + '╝'); console. log(''); products.forEach((p, i) => { const img = p.querySelector('div.aspect-square img'); const name = p.querySelector('h3.font-medium.text-gray-900'); const price = p. querySelector('span.text-blue-600.font-bold'); const brand = p.querySelector('span.bg-gray-100'); const stock = p.querySelector('span.text-gray-400'); console.log('┌' + '─'.repeat(50) + '┐'); console. log('│ 📦 Sản phẩm #' + (i+1) + ' '. repeat(35 - String(i+1).length) + '│'); console.log('├' + '─'.repeat(50) + '┤'); console.log('│ Tên:   ' + (name?.textContent?.trim()?.substring(0,40) || 'N/A')); console.log('│ Giá:   ' + (price?.textContent?.trim() || 'N/A')); console.log('│ Brand: ' + (brand?.textContent?.trim() || 'N/A')); console.log('│ Kho:   ' + (stock?. textContent?.trim() || 'N/A')); console.log('│ Ảnh:   ' + (img?.src ?  '✅ Có' : '❌ Không')); const hasError = !img?.src || !name?.textContent?.trim() || ! price?.textContent?.trim(); console.log('│ Status: ' + (hasError ? '❌ FAIL' : '✅ PASS')); console.log('└' + '─'.repeat(50) + '┘'); console.log(''); }); return 'Đã in ' + products.length + ' sản phẩm ra Console';",
+          "value": "printResult"
+        },
+        {
+          "id": "echo-result",
+          "command": "echo",
+          "target": "${printResult} - Mở DevTools (F12) > Console để xem",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "test-pagination",
+      "name": "PROD-001_Kiem_tra_phan_trang",
+      "commands": [
+        {
+          "id": "open",
+          "command": "open",
+          "target": "/",
+          "value": ""
+        },
+        {
+          "id": "wait-initial",
+          "command": "pause",
+          "target": "5000",
+          "value": ""
+        },
+        {
+          "id": "wait-load",
+          "command": "waitForElementNotPresent",
+          "target": "css=div.animate-pulse",
+          "value": "30000"
+        },
+        {
+          "id": "init",
+          "command": "executeScript",
+          "target": "window.pageResults = { pages: [], totalProducts: 0, totalPass: 0, totalFail: 0 }; return 'Initialized';",
+          "value": ""
+        },
+        {
+          "id": "check-page-1",
+          "comment": "📄 Kiểm tra Trang 1",
+          "command": "executeScript",
+          "target": "const products = document.querySelectorAll('div. bg-white.border.rounded-xl.overflow-hidden.shadow-sm'); let pass = 0; let fail = 0; products.forEach((p) => { const img = p.querySelector('div.aspect-square img'); const name = p.querySelector('h3'); const price = p.querySelector('span. text-blue-600'); if (img?. src && name?.textContent?.trim() && price?.textContent?.trim()) pass++; else fail++; }); window.pageResults.pages. push({ page: 1, total: products.length, pass, fail }); window.pageResults.totalProducts += products.length; window.pageResults.totalPass += pass; window. pageResults.totalFail += fail; return 'Trang 1: ' + pass + '/' + products.length + ' PASS';",
+          "value": "page1"
+        },
+        {
+          "id": "echo-page1",
+          "command": "echo",
+          "target": "📄 ${page1}",
+          "value": ""
+        },
+        {
+          "id": "check-has-next",
+          "command": "storeXpathCount",
+          "target": "xpath=//button[contains(text(),'Sau') and not(@disabled)]",
+          "value": "hasNext"
+        },
+        {
+          "id": "if-next",
+          "command": "if",
+          "target": "${hasNext} > 0",
+          "value": ""
+        },
+        {
+          "id": "click-next",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Sau')]",
+          "value": ""
+        },
+        {
+          "id": "wait-page2",
+          "command": "pause",
+          "target": "2000",
+          "value": ""
+        },
+        {
+          "id": "check-page-2",
+          "command": "executeScript",
+          "target": "const products = document. querySelectorAll('div.bg-white.border.rounded-xl.overflow-hidden.shadow-sm'); let pass = 0; let fail = 0; products.forEach((p) => { const img = p.querySelector('div.aspect-square img'); const name = p. querySelector('h3'); const price = p.querySelector('span.text-blue-600'); if (img?. src && name?.textContent?.trim() && price?.textContent?.trim()) pass++; else fail++; }); const pageNum = window.pageResults.pages. length + 1; window.pageResults. pages.push({ page: pageNum, total: products.length, pass, fail }); window.pageResults.totalProducts += products.length; window.pageResults.totalPass += pass; window.pageResults.totalFail += fail; return 'Trang ' + pageNum + ': ' + pass + '/' + products.length + ' PASS';",
+          "value": "page2"
+        },
+        {
+          "id": "echo-page2",
+          "command": "echo",
+          "target": "📄 ${page2}",
+          "value": ""
+        },
+        {
+          "id": "end-if",
+          "command": "end",
+          "target": "",
+          "value": ""
+        },
+        {
+          "id": "summary",
+          "command": "executeScript",
+          "target": "const r = window.pageResults; console.log(''); console.log('═'.repeat(50)); console.log('📊 TỔNG KẾT KIỂM TRA PHÂN TRANG'); console.log('═'.repeat(50)); console. log('Số trang đã kiểm tra: ' + r. pages.length); console.log('Tổng sản phẩm: ' + r.totalProducts); console.log('Pass: ' + r.totalPass); console.log('Fail: ' + r.totalFail); console.log('Tỷ lệ: ' + ((r.totalPass/r.totalProducts)*100).toFixed(1) + '%'); console.log('═'.repeat(50)); return 'Tổng: ' + r.totalProducts + ' SP | Pass: ' + r.totalPass + ' | Fail: ' + r.totalFail + ' | Rate: ' + ((r.totalPass/r.totalProducts)*100). toFixed(1) + '%';",
+          "value": "finalSummary"
+        },
+        {
+          "id": "echo-summary",
+          "command": "echo",
+          "target": "📊 ${finalSummary}",
+          "value": ""
+        },
+        {
+          "id": "get-fail",
+          "command": "executeScript",
+          "target": "return window.pageResults.totalFail;",
+          "value": "totalFail"
+        },
+        {
+          "id": "assert-pass",
+          "command": "assert",
+          "target": "totalFail",
+          "value": "^0$"
+        },
+        {
+          "id": "done",
+          "command": "echo",
+          "target": "🎉 TEST PASSED: Tất cả trang đều hiển thị sản phẩm đầy đủ",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "test-image-validation",
+      "name": "PROD-001_Kiem_tra_anh_san_pham",
+      "commands": [
+        {
+          "id": "open",
+          "command": "open",
+          "target": "/",
+          "value": ""
+        },
+        {
+          "id": "wait",
+          "command": "pause",
+          "target": "5000",
+          "value": ""
+        },
+        {
+          "id": "wait-load",
+          "command": "waitForElementNotPresent",
+          "target": "css=div.animate-pulse",
+          "value": "30000"
+        },
+        {
+          "id": "check-images",
+          "comment": "🖼️ Kiểm tra chi tiết ẢNH",
+          "command": "executeScript",
+          "target": "const products = document. querySelectorAll('div.bg-white.border.rounded-xl.overflow-hidden.shadow-sm'); let valid = 0; let placeholder = 0; let missing = 0; let broken = 0; console.log(''); console.log('═'.repeat(50)); console.log('🖼️ KIỂM TRA CHI TIẾT ẢNH SẢN PHẨM'); console.log('═'.repeat(50)); products.forEach((p, i) => { const img = p.querySelector('div.aspect-square img'); const name = p. querySelector('h3')?.textContent?.trim()?.substring(0,25) || 'SP ' + (i+1); if (!img) { missing++; console.log('❌ ' + name + ': Không có thẻ img'); } else if (!img.src || img.src === '') { missing++; console.log('❌ ' + name + ': Src rỗng'); } else if (img.src. includes('placehold') || img.src.includes('No+Image') || img.src.includes('No_Image')) { placeholder++; console.log('⚠️ ' + name + ': Đang dùng placeholder'); } else { valid++; console.log('✅ ' + name + ': OK'); } }); console.log('═'.repeat(50)); console. log('Tổng: ' + products.length + ' | Valid: ' + valid + ' | Placeholder: ' + placeholder + ' | Missing: ' + missing); console.log('═'.repeat(50)); return JSON.stringify({ total: products.length, valid, placeholder, missing });",
+          "value": "imageResult"
+        },
+        {
+          "id": "echo-result",
+          "command": "echo",
+          "target": "🖼️ Kết quả kiểm tra ảnh: ${imageResult}",
+          "value": ""
+        },
+        {
+          "id": "get-missing",
+          "command": "executeScript",
+          "target": "return JSON.parse(arguments[0]).missing;",
+          "value": "missingCount"
+        },
+        {
+          "id": "assert-no-missing",
+          "comment": "Không được thiếu ảnh",
+          "command": "assert",
+          "target": "missingCount",
+          "value": "^0$"
+        }
+      ]
+    },
+    {
+      "id": "test-price-format",
+      "name": "PROD-001_Kiem_tra_format_gia",
+      "commands": [
+        {
+          "id": "open",
+          "command": "open",
+          "target": "/",
+          "value": ""
+        },
+        {
+          "id": "wait",
+          "command": "pause",
+          "target": "5000",
+          "value": ""
+        },
+        {
+          "id": "wait-load",
+          "command": "waitForElementNotPresent",
+          "target": "css=div.animate-pulse",
+          "value": "30000"
+        },
+        {
+          "id": "check-prices",
+          "comment": "💰 Kiểm tra format GIÁ",
+          "command": "executeScript",
+          "target": "const products = document.querySelectorAll('div. bg-white.border.rounded-xl.overflow-hidden.shadow-sm'); let validCurrency = 0; let validContact = 0; let invalid = 0; let missing = 0; console.log(''); console.log('═'.repeat(50)); console. log('💰 KIỂM TRA FORMAT GIÁ SẢN PHẨM'); console.log('═'.repeat(50)); products.forEach((p, i) => { const price = p.querySelector('span. text-blue-600. font-bold'); const name = p.querySelector('h3')?.textContent?.trim()?.substring(0,25) || 'SP ' + (i+1); if (!price || ! price.textContent?. trim()) { missing++; console. log('❌ ' + name + ': Không có giá'); } else { const priceText = price.textContent.trim(); if (priceText.includes('₫')) { validCurrency++; console. log('✅ ' + name + ': ' + priceText); } else if (priceText === 'Liên hệ') { validContact++; console. log('✅ ' + name + ': Liên hệ'); } else { invalid++; console.log('❌ ' + name + ': Format sai - ' + priceText); } } }); console.log('═'. repeat(50)); console.log('Tổng: ' + products.length); console.log('Có giá (₫): ' + validCurrency); console.log('Liên hệ: ' + validContact); console.log('Sai format: ' + invalid); console.log('Thiếu giá: ' + missing); console. log('═'.repeat(50)); return JSON.stringify({ total: products.length, validCurrency, validContact, invalid, missing });",
+          "value": "priceResult"
+        },
+        {
+          "id": "echo-result",
+          "command": "echo",
+          "target": "💰 Kết quả kiểm tra giá: ${priceResult}",
+          "value": ""
+        },
+        {
+          "id": "get-errors",
+          "command": "executeScript",
+          "target": "const r = JSON.parse(arguments[0]); return r.invalid + r.missing;",
+          "value": "priceErrors"
+        },
+        {
+          "id": "assert-valid",
+          "command": "assert",
+          "target": "priceErrors",
+          "value": "^0$"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "suite-full",
+      "name": "🧪 PROD-001 Full Test Suite",
+      "tests": [
+        "test-catalog-full",
+        "test-product-details",
+        "test-pagination",
+        "test-image-validation",
+        "test-price-format"
+      ]
+    }
+  ],
+  "urls": ["https://project1-full-final.onrender.com"]
+}

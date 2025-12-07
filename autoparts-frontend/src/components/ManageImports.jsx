@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Api } from '../api.js';
 import Card from './Card.jsx';
 import { Spinner } from './Icons.jsx';
+import Toast from './Toast.jsx';
 
 export default function ManageImports() {
     const [imports, setImports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
+
+    // Toast state
+    const [toast, setToast] = useState(null);
 
     // Form state
     const [selectedProduct, setSelectedProduct] = useState('');
@@ -40,15 +44,23 @@ export default function ManageImports() {
                 note,
                 supplier
             });
-            alert("Nhập hàng thành công!");
-            // Refresh list
+
+            setToast({ type: 'success', message: 'Nhập hàng thành công! Tồn kho đã được cập nhật.' });
+
+            // 1. Refresh import list
             const newImports = await Api.adminGetImports();
             setImports(newImports);
+
+            // 2. Refresh product list to update stock in dropdown immediately
+            const productData = await Api.products({ limit: 1000 });
+            const prodList = Array.isArray(productData) ? productData : (productData.data || []);
+            setProducts(prodList);
+
             setNote('');
             setSupplier('');
             setQuantity(1);
         } catch (e) {
-            alert("Lỗi nhập hàng: " + e.message);
+            setToast({ type: 'error', message: "Lỗi nhập hàng: " + e.message });
         }
     };
 
@@ -56,6 +68,14 @@ export default function ManageImports() {
 
     return (
         <div className="space-y-6">
+            {toast && (
+                <Toast
+                    type={toast.type}
+                    message={toast.message}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
             {/* Form Nhập Hàng */}
             <Card>
                 <h2 className="text-xl font-bold mb-4">Nhập Hàng (Thêm tồn kho)</h2>

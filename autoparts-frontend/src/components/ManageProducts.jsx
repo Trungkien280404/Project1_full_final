@@ -27,10 +27,14 @@ export default function ManageProducts() {
 
   function startEdit(product) {
     setError('');
+    let specs = product.specifications || '';
+    if (typeof specs === 'object') {
+      specs = JSON.stringify(specs, null, 2);
+    }
     setDraft({
       ...product,
       description: product.description || '',
-      specifications: product.specifications || '',
+      specifications: specs,
       imageFile: null
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });

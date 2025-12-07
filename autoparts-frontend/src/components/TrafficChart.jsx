@@ -26,9 +26,9 @@ ChartJS.register(
 // === CHÚ Ý DÒNG NÀY ===
 // Chúng ta dùng "export function" (xuất có tên)
 export function TrafficChart({ trafficData }) {
-  
+
   const data = {
-    labels: trafficData.map(item => item.day),
+    labels: trafficData.map(item => item.date),
     datasets: [
       {
         label: 'Lượt truy cập',
