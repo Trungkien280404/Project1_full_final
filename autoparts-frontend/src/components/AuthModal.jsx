@@ -142,55 +142,65 @@ export default function AuthModal({ onClose, onLogin }) {
     }
 
     async function fpSendCode() {
-        try {
-            if (!email || !isValidEmail(email)) return showToast('error', 'Vui lòng nhập email đúng định dạng');
-            setLoading(true); clearToast();
-            const r = await Api.forgot(email);
-            showToast('success', r?.message || 'Nếu email tồn tại, mã đã được gửi.');
+        if (!email || !isValidEmail(email)) {
+            return showToast('error', 'Vui lòng nhập email đúng định dạng');
+        }
+
+        setLoading(true);
+        clearToast();
+        const r = await Api.forgot(email);
+
+        if (r?.ok) {
+            showToast('success', r?.message || 'Mã xác minh đã được gửi');
             setFpStep(2);
-        } catch {
-            showToast('error', 'Không thể gửi mã. Thử lại sau.');
-        } finally { setLoading(false); }
+        } else {
+            showToast('error', r?.message || 'Không thể gửi mã xác minh');
+        }
+
+        setLoading(false);
     }
 
     async function fpVerify() {
-        try {
-            if (!email || !fpCode) return showToast('error', 'Nhập email và mã xác minh');
-            setLoading(true); clearToast();
-            const r = await Api.verifyReset(email, fpCode);
-            if (r?.ok) {
-                setVerified(true);
-                showToast('success', 'Mã hợp lệ. Bạn có thể đặt mật khẩu mới.');
-            } else {
-                setVerified(false);
-                showToast('error', r?.message || 'Mã không đúng hoặc đã hết hạn.');
-            }
-        } catch {
+        if (!email || !fpCode) {
+            return showToast('error', 'Nhập email và mã xác minh');
+        }
+
+        setLoading(true);
+        clearToast();
+        const r = await Api.verifyReset(email, fpCode);
+
+        if (r?.ok) {
+            setVerified(true);
+            showToast('success', 'Mã hợp lệ. Bạn có thể đặt mật khẩu mới.');
+        } else {
             setVerified(false);
-            showToast('error', 'Không thể xác minh mã.');
-        } finally { setLoading(false); }
+            showToast('error', r?.message || 'Mã không đúng hoặc đã hết hạn.');
+        }
+
+        setLoading(false);
     }
 
     async function fpReset() {
-        try {
-            if (!verified) return showToast('error', 'Bạn cần xác minh mã trước');
-            if (!fpNew || fpNew.length < 6) return showToast('error', 'Mật khẩu mới phải có ít nhất 6 ký tự');
-            if (!isStrongPassword(fpNew)) return showToast('error', 'Mật khẩu phải có ít nhất 1 chữ IN HOA và 1 ký tự đặc biệt');
-            if (fpNew !== fpConfirm) return showToast('error', 'Xác nhận mật khẩu không khớp');
-            setLoading(true); clearToast();
-            const r = await Api.reset(email, fpCode, fpNew);
-            if (r?.ok && r?.token) {
-                showToast('success', 'Đổi mật khẩu thành công. Đang đăng nhập…');
-                setTimeout(() => {
-                    onLogin({ token: r.token, user: r.user });
-                    onClose();
-                }, 800);
-            } else {
-                showToast('error', r?.message || 'Đổi mật khẩu thất bại');
-            }
-        } catch {
-            showToast('error', 'Không thể đổi mật khẩu');
-        } finally { setLoading(false); }
+        if (!verified) return showToast('error', 'Bạn cần xác minh mã trước');
+        if (!fpNew || fpNew.length < 6) return showToast('error', 'Mật khẩu mới phải có ít nhất 6 ký tự');
+        if (!isStrongPassword(fpNew)) return showToast('error', 'Mật khẩu phải có ít nhất 1 chữ IN HOA và 1 ký tự đặc biệt');
+        if (fpNew !== fpConfirm) return showToast('error', 'Xác nhận mật khẩu không khớp');
+
+        setLoading(true);
+        clearToast();
+        const r = await Api.reset(email, fpCode, fpNew);
+
+        if (r?.ok && r?.token) {
+            showToast('success', 'Đổi mật khẩu thành công. Đang đăng nhập…');
+            setTimeout(() => {
+                onLogin({ token: r.token, user: r.user });
+                onClose();
+            }, 800);
+        } else {
+            showToast('error', r?.message || 'Đổi mật khẩu thất bại');
+        }
+
+        setLoading(false);
     }
 
     return (

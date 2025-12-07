@@ -238,10 +238,137 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// ... (Giữ nguyên các API forgot password) ...
-app.post('/api/auth/forgot', async (req, res) => { /* ...Code cũ... */ res.json({ ok: true }) });
-app.post('/api/auth/verify-reset', (req, res) => { /* ...Code cũ... */ res.json({ ok: true }) });
-app.post('/api/auth/reset', async (req, res) => { /* ...Code cũ... */ res.json({ ok: true }) });
+// ===== Forgot Password Flow =====
+
+// POST /api/auth/forgot - Gửi mã xác minh
+app.post('/api/auth/forgot', async (req, res) => {
+  const { email } = req.body || {};
+
+  // Validation: Email format
+  if (!email || !isValidEmail(email)) {
+    return res.status(400).json({ message: 'Email không đúng định dạng' });
+  }
+
+  try {
+    // Kiểm tra email có tồn tại không
+    const result = await query('SELECT email FROM users WHERE email = $1', [email]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Email không tồn tại trong hệ thống. Vui lòng kiểm tra lại hoặc đăng ký tài khoản mới.'
+      });
+    }
+
+    // Tạo mã xác minh 6 số
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1000; // Hết hạn sau 15 phút
+
+    // Lưu vào resetStore
+    resetStore[email] = { code, expiresAt };
+
+    console.log(`[Reset Password] Code for ${email}: ${code} (expires in 15 min)`);
+
+    res.json({
+      ok: true,
+      message: `Mã xác minh đã được tạo: ${code} (Trong môi trường thực tế, mã này sẽ được gửi qua email)`
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+});
+
+// POST /api/auth/verify-reset - Xác minh mã
+app.post('/api/auth/verify-reset', (req, res) => {
+  const { email, code } = req.body || {};
+
+  if (!email || !code) {
+    return res.status(400).json({ message: 'Vui lòng nhập email và mã xác minh' });
+  }
+
+  const stored = resetStore[email];
+
+  if (!stored) {
+    return res.status(400).json({ message: 'Không tìm thấy yêu cầu đặt lại mật khẩu cho email này' });
+  }
+
+  if (Date.now() > stored.expiresAt) {
+    delete resetStore[email];
+    return res.status(400).json({ message: 'Mã xác minh đã hết hạn. Vui lòng yêu cầu mã mới.' });
+  }
+
+  if (stored.code !== code) {
+    return res.status(400).json({ message: 'Mã xác minh không đúng. Vui lòng kiểm tra lại.' });
+  }
+
+  res.json({ ok: true, message: 'Mã xác minh hợp lệ' });
+});
+
+// POST /api/auth/reset - Đặt lại mật khẩu
+app.post('/api/auth/reset', async (req, res) => {
+  const { email, code, newPassword } = req.body || {};
+
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
+  }
+
+  // Kiểm tra mật khẩu mới
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'Mật khẩu phải có ít nhất 6 ký tự' });
+  }
+
+  if (!isStrongPassword(newPassword)) {
+    return res.status(400).json({
+      message: 'Mật khẩu phải có ít nhất 1 chữ in hoa và 1 ký tự đặc biệt (!@#$%...)'
+    });
+  }
+
+  const stored = resetStore[email];
+
+  if (!stored) {
+    return res.status(400).json({ message: 'Không tìm thấy yêu cầu đặt lại mật khẩu' });
+  }
+
+  if (Date.now() > stored.expiresAt) {
+    delete resetStore[email];
+    return res.status(400).json({ message: 'Mã xác minh đã hết hạn' });
+  }
+
+  if (stored.code !== code) {
+    return res.status(400).json({ message: 'Mã xác minh không đúng' });
+  }
+
+  try {
+    // Cập nhật mật khẩu mới
+    const salt = await bcryptModule.genSalt(10);
+    const passwordHash = await bcryptModule.hash(newPassword, salt);
+
+    const result = await query(
+      'UPDATE users SET password = $1 WHERE email = $2 RETURNING email, role, name',
+      [passwordHash, email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+
+    // Xóa mã đã sử dụng
+    delete resetStore[email];
+
+    const u = result.rows[0];
+    const token = signToken({ email: u.email, role: u.role, name: u.name });
+
+    res.json({
+      ok: true,
+      token,
+      user: { email: u.email, role: u.role, name: u.name },
+      message: 'Đổi mật khẩu thành công'
+    });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+});
 
 
 // ===== Products (ĐÃ CẬP NHẬT: BỎ BRAND, THÊM UPLOAD) =====
