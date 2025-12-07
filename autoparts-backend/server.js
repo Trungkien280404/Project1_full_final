@@ -17,6 +17,14 @@ import helmet from 'helmet';
 dotenv.config();
 
 const app = express();
+
+// Configure MIME types for JS modules
+app.set('view engine', 'html');
+const mimeTypes = {
+  '.js': 'application/javascript',
+  '.mjs': 'application/javascript',
+};
+
 app.use(compression());
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -1252,11 +1260,19 @@ app.delete('/api/cart', auth, async (req, res) => {
 const frontendDistPath = path.join(process.cwd(), '..', 'autoparts-frontend', 'dist');
 console.log('Serving frontend from:', frontendDistPath);
 
-// Serve static assets (JS, CSS, images) with cache control
+// Serve static assets (JS, CSS, images) with cache control and correct MIME types
 app.use(express.static(frontendDistPath, {
   maxAge: '1d', // Cache for 1 day
   etag: true,
-  lastModified: true
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js') || filePath.endsWith('.mjs')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+    if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+  }
 }));
 
 // SPA fallback - Serve index.html for all non-API routes
