@@ -98,12 +98,24 @@ CREATE TABLE IF NOT EXISTS user_addresses (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 9. Indexes (Tối ưu hóa tìm kiếm)
+-- 9. Cart Table (Giỏ hàng lưu theo user)
+CREATE TABLE IF NOT EXISTS cart (
+  id SERIAL PRIMARY KEY,
+  user_email VARCHAR(255) NOT NULL,
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_email, product_id)
+);
+
+-- 10. Indexes (Tối ưu hóa tìm kiếm)
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX IF NOT EXISTS idx_products_name_trgm ON products USING GIN (name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_products_part ON products(part);
 CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
 CREATE INDEX IF NOT EXISTS idx_products_id_desc ON products(id DESC);
+CREATE INDEX IF NOT EXISTS idx_cart_user_email ON cart(user_email);
 `;
 
 const seedAdminSql = `
@@ -115,21 +127,21 @@ ON CONFLICT (email) DO NOTHING;
 `;
 
 async function migrate() {
-    try {
-        console.log("🚀 Đang kết nối tới Render Database...");
+  try {
+    console.log("🚀 Đang kết nối tới Render Database...");
 
-        console.log("🛠️  Đang tạo bảng (Tables)...");
-        await pool.query(schemaSql);
+    console.log("🛠️  Đang tạo bảng (Tables)...");
+    await pool.query(schemaSql);
 
-        console.log("👤 Đang tạo Admin mặc định...");
-        await pool.query(seedAdminSql);
+    console.log("👤 Đang tạo Admin mặc định...");
+    await pool.query(seedAdminSql);
 
-        console.log("✅ Cài đặt Database thành công!");
-    } catch (err) {
-        console.error("❌ Lỗi:", err);
-    } finally {
-        pool.end();
-    }
+    console.log("✅ Cài đặt Database thành công!");
+  } catch (err) {
+    console.error("❌ Lỗi:", err);
+  } finally {
+    pool.end();
+  }
 }
 
 migrate();
