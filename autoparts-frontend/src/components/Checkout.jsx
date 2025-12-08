@@ -18,6 +18,7 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
   const [selectedAddressId, setSelectedAddressId] = useState('new');
   const [saveNewAddress, setSaveNewAddress] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Fetch addresses on mount
   useEffect(() => {
@@ -40,6 +41,7 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
 
   const handleAddressSelect = (id) => {
     setSelectedAddressId(id);
+    setIsEditing(false);
     if (id === 'new') {
       setInfo({ name: '', phone: '', address: '' });
       setSaveNewAddress(true); // Default check for convenience
@@ -50,6 +52,11 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
         setSaveNewAddress(false);
       }
     }
+  };
+
+  const handleEditMode = () => {
+    setIsEditing(true);
+    setSaveNewAddress(true);
   };
 
   const productTotal = cart.reduce((s, i) => s + i.qty * i.price, 0);
@@ -77,7 +84,7 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
     setLoading(true);
     try {
       // 1. Save address if requested
-      if (isLoggedIn && selectedAddressId === 'new' && saveNewAddress) {
+      if (isLoggedIn && (selectedAddressId === 'new' || isEditing) && saveNewAddress) {
         try {
           await Api.addAddress(info);
         } catch (e) {
@@ -165,8 +172,8 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
               <Input
                 value={info.name}
                 onChange={e => setInfo({ ...info, name: e.target.value })}
-                disabled={loading || (selectedAddressId !== 'new')}
-                className={selectedAddressId !== 'new' ? 'bg-gray-100 text-gray-500' : ''}
+                disabled={loading || (selectedAddressId !== 'new' && !isEditing)}
+                className={(selectedAddressId !== 'new' && !isEditing) ? 'bg-gray-100 text-gray-500' : ''}
               />
             </div>
             <div>
@@ -175,23 +182,23 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
                 type="tel"
                 value={info.phone}
                 onChange={e => setInfo({ ...info, phone: e.target.value })}
-                disabled={loading || (selectedAddressId !== 'new')}
-                className={selectedAddressId !== 'new' ? 'bg-gray-100 text-gray-500' : ''}
+                disabled={loading || (selectedAddressId !== 'new' && !isEditing)}
+                className={(selectedAddressId !== 'new' && !isEditing) ? 'bg-gray-100 text-gray-500' : ''}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ nhận hàng</label>
               <textarea
-                className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${selectedAddressId !== 'new' ? 'bg-gray-100 text-gray-500' : 'bg-white'}`}
+                className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${(selectedAddressId !== 'new' && !isEditing) ? 'bg-gray-100 text-gray-500' : 'bg-white'}`}
                 rows="3"
                 value={info.address}
                 onChange={e => setInfo({ ...info, address: e.target.value })}
-                disabled={loading || (selectedAddressId !== 'new')}
+                disabled={loading || (selectedAddressId !== 'new' && !isEditing)}
               />
             </div>
 
             {/* Save Address Checkbox */}
-            {isLoggedIn && selectedAddressId === 'new' && (
+            {isLoggedIn && (selectedAddressId === 'new' || isEditing) && (
               <div className="flex items-center gap-2 mt-2">
                 <input
                   type="checkbox"
@@ -205,12 +212,12 @@ export default function Checkout({ cart, onCheckoutSuccess, onCancel, removeFrom
             )}
 
             {/* Edit button if viewing existing */}
-            {isLoggedIn && selectedAddressId !== 'new' && (
+            {isLoggedIn && selectedAddressId !== 'new' && !isEditing && (
               <button
                 className="text-sm text-blue-600 hover:underline font-medium"
-                onClick={() => handleAddressSelect('new')}
+                onClick={handleEditMode}
               >
-                Thay đổi / Nhập mới
+                Thay đổi
               </button>
             )}
           </div>
